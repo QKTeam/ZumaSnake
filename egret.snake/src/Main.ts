@@ -44,7 +44,7 @@ class Main extends egret.DisplayObjectContainer {
 
     public constructor() {
         super();
-        this.interval = 5 ;
+        this.interval = 200 ;
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.createGameScene, this);
     }
 
