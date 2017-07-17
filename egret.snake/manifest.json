@@ -1,0 +1,21 @@
+{
+	"initial": [
+		"libs/modules/egret/egret.js",
+		"libs/modules/egret/egret.web.js",
+		"libs/modules/game/game.js",
+		"libs/modules/res/res.js",
+		"libs/modules/experimental/experimental.js",
+		"libs/modules/tween/tween.js",
+		"libs/modules/socket/socket.js",
+		"libs/modules/dragonBones/dragonBones.js",
+		"promise/bin/promise.js",
+		"libs/modules/mouse/mouse.js"
+	],
+	"game": [
+		"bin-debug/Color.js",
+		"bin-debug/Food.js",
+		"bin-debug/LoadingUI.js",
+		"bin-debug/Main.js",
+		"bin-debug/Snake.js"
+	]
+}
