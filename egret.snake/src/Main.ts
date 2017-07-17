@@ -80,7 +80,7 @@ class Main extends egret.DisplayObjectContainer {
         this.snake.Move(this.moveEvent, this.interval);
     }
 
-    
+    private jsahdj = 1231;
 }
 
 
