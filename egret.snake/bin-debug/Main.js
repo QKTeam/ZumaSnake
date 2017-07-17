@@ -38,6 +38,7 @@ var Main = (function (_super) {
     __extends(Main, _super);
     function Main() {
         var _this = _super.call(this) || this;
+        _this.radius = 20;
         _this.interval = 200;
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.createGameScene, _this);
         return _this;
@@ -52,7 +53,8 @@ var Main = (function (_super) {
         bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageWidth);
         bg.graphics.endFill();
         this.addChild(bg);
-        this.snake = new Snake(100, 100, 20, 50);
+        this.randomFood();
+        this.snake = new Snake(100, 100, 20, 20);
         this.addChild(this.snake);
         mouse.enable(this.stage);
         mouse.setMouseMoveEnabled(true);
@@ -68,7 +70,13 @@ var Main = (function (_super) {
             this.timer.start();
         }
     };
+    Main.prototype.onEat = function () {
+        this.removeChild(this.food);
+        this.snake.afterEat(this.food.colornum);
+        this.randomFood();
+    };
     Main.prototype.onTimer = function () {
+
         console.log(this.interval);
         this.snake.Move(this.moveEvent, this.interval);
     };

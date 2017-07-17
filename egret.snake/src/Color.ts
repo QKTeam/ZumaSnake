@@ -1,5 +1,6 @@
 class Color {
 	public constructor() {
+		
 	}
 
 	private ColorList :number[] = 

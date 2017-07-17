@@ -73,6 +73,17 @@ var Snake = (function (_super) {
             animate.to({ x: this.body[i - 1].x, y: this.body[i - 1].y }, interval);
         }
     };
+    Snake.prototype.afterEat = function (color) {
+        var node = new egret.Shape();
+        node.graphics.beginFill(color);
+        node.graphics.drawCircle(this.radius, this.radius, this.radius);
+        node.graphics.endFill();
+        node.x = this.body[this.body.length - 1].x + this.radius;
+        node.y = this.body[this.body.length - 1].y + this.radius;
+        this.body.push(node);
+        this.addChild(node);
+        this.setChildIndex(this.body[this.body.length - 1], 0);
+    };
     return Snake;
 }(egret.Sprite));
 __reflect(Snake.prototype, "Snake");

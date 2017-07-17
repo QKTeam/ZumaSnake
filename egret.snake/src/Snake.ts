@@ -1,7 +1,7 @@
 // 蛇类
 class Snake extends egret.Sprite{
 	//蛇头
-	private head: egret.Shape;
+	public head: egret.Shape;
 	//蛇身半径
 	private radius: number;
 	//蛇身数组
@@ -89,5 +89,16 @@ class Snake extends egret.Sprite{
 			animate = egret.Tween.get(this.body[i]);
 			animate.to({x: this.body[i -1].x, y: this.body[i -1].y}, interval);
 		}
+	}
+	public afterEat(color:number) {
+		var node: egret.Shape = new egret.Shape();
+		node.graphics.beginFill(color);
+		node.graphics.drawCircle(this.radius,this.radius,this.radius);
+		node.graphics.endFill();
+		node.x = this.body[this.body.length - 1].x + this.radius;
+		node.y = this.body[this.body.length - 1].y + this.radius;
+		this.body.push(node);
+		this.addChild(node);
+		this.setChildIndex(this.body[this.body.length - 1],0);
 	}
 }
