@@ -72,7 +72,9 @@ class Main extends egret.DisplayObjectContainer {
         mouse.setMouseMoveEnabled(true);
         this.touchEnabled = true;
         this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this);
-        this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchAccelerate, this);
+        //this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchAccelerate, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchAccelerate, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_END, this.endTouchAccelerate, this);
     }
     
     private move(e: egret.TouchEvent) {
@@ -108,33 +110,48 @@ class Main extends egret.DisplayObjectContainer {
             .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
     }
 
-    private onTouchAccelerate() {
+    private onTouchAccelerate(e: egret.TouchEvent) {
         this.interval = 80;
         this.timer.removeEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
         this.timer = null;
-        this.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchAccelerate, this);
+        this.removeEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this)
+        this.moveEvent = e;
+        if (this.timer == null){
+            this.timer = new egret.Timer(this.interval);
+            this.timer.addEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
+            this.timer.start();
+        }
+        //this.removeEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchAccelerate, this);
         // if (this.TimerForAccelerate == null) {
-            this.TimerForAccelerate = new egret.Timer(5000,1);
-            this.TimerForAccelerate.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function() {
-                this.interval = 200;
-                this.timer.removeEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
-                this.timer = null;
+            //this.TimerForAccelerate = new egret.Timer(5000,1);
+            //this.TimerForAccelerate.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function() {
+                // this.interval = 200;
+                // this.timer.removeEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
+                // this.timer = null;
                 
-                this.SetAccelerateListener();
+                
                 // this.TimerForAccelerate.stop();
                 // this.TimerForAccelerate = null;
-            }, this);
-            this.TimerForAccelerate.start();
+            //}, this);
+            //this.TimerForAccelerate.start();
         // }
     }
 
-    private SetAccelerateListener() {
-        this.TimerForAccelerateListener = new egret.Timer(10000,1);
-        this.TimerForAccelerateListener.addEventListener(egret.TimerEvent.TIMER_COMPLETE,function() {
-            this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchAccelerate, this);
-        }, this);
-        this.TimerForAccelerateListener.start();
+    private endTouchAccelerate() {
+        this.interval = 200;
+        this.timer.removeEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
+        this.timer = null;
+        this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.onTouchAccelerate, this);
+        this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this);
     }
+
+    // private SetAccelerateListener() {
+        //this.TimerForAccelerateListener = new egret.Timer(10000,1);
+       // this.TimerForAccelerateListener.addEventListener(egret.TimerEvent.TIMER_COMPLETE,function() {
+            
+       // }, this);
+        //this.TimerForAccelerateListener.start();
+    // }
 }
 
 
