@@ -38,10 +38,13 @@ class Main extends egret.DisplayObjectContainer {
     private timer: egret.Timer;
     private moveEvent: egret.TouchEvent;
     private interval: number;
+    private food: Food;
+    private color: Color;
+    private radius = 20;
 
     public constructor() {
         super();
-        this.interval = 50 ;
+        this.interval = 5 ;
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.createGameScene, this);
     }
 
@@ -57,6 +60,7 @@ class Main extends egret.DisplayObjectContainer {
 		bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageWidth);
 		bg.graphics.endFill();
 		this.addChild(bg);
+        this.randomFood();
 
 
         this.snake = new Snake(100 ,100, 20, 20);
@@ -76,8 +80,29 @@ class Main extends egret.DisplayObjectContainer {
         this.timer.start();
         }
     }
+
+    
+
+    private onEat() {
+        this.removeChild(this.food);
+        this.snake.afterEat(this.food.colornum);
+        this.randomFood();
+    }
+
     private onTimer() {
+        if(this.hit(this.snake.head,this.food))
+            this.onEat();
         this.snake.Move(this.moveEvent, this.interval);
+    }
+    private randomFood() {
+        var tmpx = Math.random() * (this.stage.stageWidth - this.radius * 2);
+        var tmpy = Math.random() * (this.stage.stageHeight - this.radius * 2);
+        this.food = new Food(tmpx,tmpy,this.radius);
+        this.addChild(this.food);
+    }
+    private hit(a, b) {
+        return (new egret.Rectangle(a.x + this.snake.x,a.y + this.snake.y,a.width,a.height))
+            .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
     }
 }
 
