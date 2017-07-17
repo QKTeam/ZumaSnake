@@ -39,7 +39,7 @@ var Main = (function (_super) {
     function Main() {
         var _this = _super.call(this) || this;
         _this.radius = 20;
-        _this.interval = 5;
+        _this.interval = 200;
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.createGameScene, _this);
         return _this;
     }
@@ -49,7 +49,7 @@ var Main = (function (_super) {
      */
     Main.prototype.createGameScene = function () {
         var bg = new egret.Shape();
-        bg.graphics.beginFill(0xffffff);
+        bg.graphics.beginFill(0xffccbc);
         bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageWidth);
         bg.graphics.endFill();
         this.addChild(bg);
@@ -60,6 +60,7 @@ var Main = (function (_super) {
         mouse.setMouseMoveEnabled(true);
         this.touchEnabled = true;
         this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchAccelerate, this);
     };
     Main.prototype.move = function (e) {
         this.moveEvent = e;
@@ -75,19 +76,34 @@ var Main = (function (_super) {
         this.randomFood();
     };
     Main.prototype.onTimer = function () {
-        if (this.hit(this.snake.head, this.food))
-            this.onEat();
+
+        console.log(this.interval);
         this.snake.Move(this.moveEvent, this.interval);
     };
-    Main.prototype.randomFood = function () {
-        var tmpx = Math.random() * (this.stage.stageWidth - this.radius * 2);
-        var tmpy = Math.random() * (this.stage.stageHeight - this.radius * 2);
-        this.food = new Food(tmpx, tmpy, this.radius);
-        this.addChild(this.food);
+    Main.prototype.onTouchAccelerate = function () {
+        this.interval = 80;
+        this.timer.removeEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
+        this.timer = null;
+        this.removeEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchAccelerate, this);
+        // if (this.TimerForAccelerate == null) {
+        this.TimerForAccelerate = new egret.Timer(5000, 1);
+        this.TimerForAccelerate.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+            this.interval = 200;
+            this.timer.removeEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
+            this.timer = null;
+            this.SetAccelerateListener();
+            // this.TimerForAccelerate.stop();
+            // this.TimerForAccelerate = null;
+        }, this);
+        this.TimerForAccelerate.start();
+        // }
     };
-    Main.prototype.hit = function (a, b) {
-        return (new egret.Rectangle(a.x + this.snake.x, a.y + this.snake.y, a.width, a.height))
-            .intersects(new egret.Rectangle(b.x, b.y, b.width, b.height));
+    Main.prototype.SetAccelerateListener = function () {
+        this.TimerForAccelerateListener = new egret.Timer(10000, 1);
+        this.TimerForAccelerateListener.addEventListener(egret.TimerEvent.TIMER_COMPLETE, function () {
+            this.addEventListener(egret.TouchEvent.TOUCH_TAP, this.onTouchAccelerate, this);
+        }, this);
+        this.TimerForAccelerateListener.start();
     };
     return Main;
 }(egret.DisplayObjectContainer));
