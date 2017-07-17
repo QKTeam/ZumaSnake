@@ -79,8 +79,6 @@ class Main extends egret.DisplayObjectContainer {
     private onTimer() {
         this.snake.Move(this.moveEvent, this.interval);
     }
-
-    private jsahdj = 1231;
 }
 
 
