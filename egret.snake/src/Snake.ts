@@ -15,7 +15,7 @@ class Snake extends egret.Sprite{
 		super();
 		this.headColor = new Color();
 		this.body = [];
-		this.speed = 20;
+		this.speed = 30;
 		this.Create(x, y, r, n);
 	}
 

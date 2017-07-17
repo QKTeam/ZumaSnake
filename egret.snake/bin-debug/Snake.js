@@ -13,7 +13,7 @@ var Snake = (function (_super) {
         var _this = _super.call(this) || this;
         _this.headColor = new Color();
         _this.body = [];
-        _this.speed = 20;
+        _this.speed = 30;
         _this.Create(x, y, r, n);
         return _this;
     }
