@@ -77,10 +77,8 @@ class Main extends egret.DisplayObjectContainer {
         }
     }
     private onTimer() {
-        var gay;
         this.snake.Move(this.moveEvent, this.interval);
     }
-
 }
 
 
