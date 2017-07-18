@@ -12,12 +12,14 @@ class Snake extends egret.Sprite{
 	public speed: number;
 	//加速计时器
 	private AccelerateTimer: egret.Timer;
-	
+	//加速累计时间
+	private count: number;
 	public constructor(x: number, y: number, r: number, n: number) {
 		super();
 		this.headColor = new Color();
 		this.body = [];
 		this.speed = 30;
+		this.count = 0;
 		this.Create(x, y, r, n);
 	}
 
@@ -104,9 +106,12 @@ class Snake extends egret.Sprite{
 	}
 
 	public startAccelerate() {
-		this.AccelerateTimer = new egret.Timer(3000);
+		this.AccelerateTimer = new egret.Timer(30);
 		this.AccelerateTimer.addEventListener(egret.TimerEvent.TIMER, function() {
-			if(this.body.length > 2) {
+			this.count++;
+			console.log(this.count);
+			
+			if(this.body.length > 2 && this.count%100 === 0) {
 				var last_body = this.body[this.body.length - 1];
 				this.body.splice(-1, 1);
 				var animate: egret.Tween = egret.Tween.get(last_body);
@@ -115,13 +120,14 @@ class Snake extends egret.Sprite{
 					this.removeChild(last_body);
 				}, this, 500);
 				this.BodytoFood(last_body, last_body.Color);
+				this.count = 0;
 			}
 		}, this);
 		this.AccelerateTimer.start();
 	}
 
 	public stopAccelerate() {
-		this.AccelerateTimer.reset();
+		this.AccelerateTimer.stop();
 	}
 
 	private BodytoFood(bodypoint: egret.Shape, bodycolor: number) {
