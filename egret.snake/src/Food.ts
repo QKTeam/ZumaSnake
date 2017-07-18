@@ -21,7 +21,7 @@ class Food extends egret.Sprite {
         this.y = y;
         this.addChild(this.food);
     }
-    private lashi(x:number,y:number,r:number,color:number): void {
+    public Accelerate(x:number,y:number,r:number,color:number): void {
         this.food = new egret.Shape();
         this.food.graphics.beginFill(color);
         this.food.graphics.drawCircle(0,0,0.2*r);

@@ -67,7 +67,7 @@ class Main extends egret.DisplayObjectContainer {
         this.randomBig();
 
 
-        this.snake = new Snake(100 ,100, 20, 50);
+        this.snake = new Snake(100 ,100, 20, 5);
         this.addChild(this.snake);
         console.log(this.snake);
 
@@ -88,6 +88,9 @@ class Main extends egret.DisplayObjectContainer {
                 this.timer.addEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
             }
             this.timer.start();
+        }
+        if (this.snake.body.length <= 2) {
+            this.endTouchAccelerate();
         }
     }
 
@@ -127,9 +130,11 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private startTouchAccelerate() {
-        this.timer.delay = 80;
-        this.interval = 80;
-        this.snake.startAccelerate();
+        if(this.snake.body.length > 2){
+            this.timer.delay = 80;
+            this.interval = 80;
+            this.snake.startAccelerate();
+        }
     }
     private endTouchAccelerate() {
         this.timer.delay = 150;

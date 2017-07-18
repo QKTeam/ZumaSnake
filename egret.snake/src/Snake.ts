@@ -5,7 +5,7 @@ class Snake extends egret.Sprite{
 	//蛇身半径
 	private radius: number;
 	//蛇身数组
-	private body: BodyPoint[];
+	public body: BodyPoint[];
 	//蛇头颜色
 	private headColor: Color;
 	//蛇的速度
@@ -94,17 +94,28 @@ class Snake extends egret.Sprite{
 		node.CreateBody(this.radius, color);
 		node.x = this.body[this.body.length - 1].x + this.radius;
 		node.y = this.body[this.body.length - 1].y + this.radius;
+		node.scaleX = 0.01;
+		node.scaleY = 0.01;
 		this.body.push(node);
 		this.addChild(node);
+		var animate: egret.Tween = egret.Tween.get(node);
+		animate.to({scaleX: 1.0, scaleY: 1.0},500,egret.Ease.circOut);
 		this.setChildIndex(this.body[this.body.length - 1],0);
 	}
 
 	public startAccelerate() {
 		this.AccelerateTimer = new egret.Timer(3000);
 		this.AccelerateTimer.addEventListener(egret.TimerEvent.TIMER, function() {
-			var body = this.body[this.body.length - 1];
-			this.body.splice(-1, 1);
-			//this.BodytoFood(body, body.Color);
+			if(this.body.length > 2) {
+				var last_body = this.body[this.body.length - 1];
+				this.body.splice(-1, 1);
+				var animate: egret.Tween = egret.Tween.get(last_body);
+				animate.to({scaleX: 0.01, scaleY: 0.01}, 500, egret.Ease.circOut);
+				var time = egret.setTimeout(function() {
+					this.removeChild(last_body);
+				}, this, 500);
+				this.BodytoFood(last_body, last_body.Color);
+			}
 		}, this);
 		this.AccelerateTimer.start();
 	}
@@ -117,13 +128,18 @@ class Snake extends egret.Sprite{
 		var food: Food[] = [];
 		for (var i = 0; i < 5; i++) {
 			food[i] = new Food();
+			food[i].Accelerate(bodypoint.x+this.x, bodypoint.y+this.y, this.radius, bodycolor);
+			console.log(bodypoint.x+this.x, bodypoint.y+this.y);
+			
+			console.log(food[i]);
+			
 			this.parent.addChild(food[i]);
 			var animate: egret.Tween = egret.Tween.get(food[i]);
 			var randomAngle = Math.random()*(Math.PI + 1);
 			animate.to({
 				x: this.x+bodypoint.x + 100*Math.cos(randomAngle), 
 				y: this.y+bodypoint.y + 100*Math.sin(randomAngle)
-			}, 100, egret.Ease.circOut);
+			}, 500, egret.Ease.circOut);
 		}
 	}
 
