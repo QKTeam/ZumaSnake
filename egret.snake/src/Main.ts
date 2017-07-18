@@ -40,14 +40,19 @@ class Main extends egret.DisplayObjectContainer {
     private TimerForAccelerateListener: egret.Timer;
     private moveEvent: egret.TouchEvent;
     private interval: number;
-    private food: Food;
+    private food: Food[];
     private color: Color;
     private radius = 20;
+    private foodnum = 20;
+    private foodcolor: ColorCount[];
+    private foodAccumulate = 3;
 
     public constructor() {
         super();
         this.interval = 150 ;
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.createGameScene, this);
+        this.food = [];
+        this.foodcolor = [];
     }
 
    
@@ -92,22 +97,42 @@ class Main extends egret.DisplayObjectContainer {
 
     
 
-    private onEat() {
-        this.removeChild(this.food);
-        this.snake.afterEat(this.food.colornum);
-        this.randomFood();
+    private onEatFood(i) {
+        var ncolor = this.food[i].colornum;
+        var ncount = 0;
+        var foodcount: ColorCount = new ColorCount(ncolor, ncount);
+        this.removeChild(this.food[i]);
+        for(var j = 0;j < this.foodcolor.length;j++) {
+            if(this.foodcolor[j].color == ncolor) {
+                this.foodcolor[j].count ++;
+            }
+            else {
+                this.foodcolor.push(foodcount);
+            }
+            if(this.foodcolor[j].count >= this.foodAccumulate) {
+                this.snake.afterEat(this.foodcolor[j].color);
+            }
+        }
+        this.food.splice(i,1);
     }
 
     private onTimer() {
-        if(this.hit(this.snake.head,this.food))
-            this.onEat();
+        for(var i = 0;i < this.food.length;i++) {
+            if(this.hit(this.snake.head,this.food[i])) {
+                this.onEatFood(i);
+                break;
+            }
+        }
         this.snake.Move(this.moveEvent, this.interval);
     }
     private randomFood() {
-        var tmpx = Math.random() * (this.stage.stageWidth - this.radius * 2);
-        var tmpy = Math.random() * (this.stage.stageHeight - this.radius * 2);
-        this.food = new Food(tmpx,tmpy,this.radius);
-        this.addChild(this.food);
+        for(var i = 0;i < this.foodnum;i++) {
+            var foodpoint: Food = new Food(tmpx,tmpy,this.radius);
+            var tmpx = Math.random() * (this.stage.stageWidth - this.radius * 2);
+            var tmpy = Math.random() * (this.stage.stageHeight - this.radius * 2);
+            this.food.push(foodpoint);
+            this.addChild(this.food[i]);
+        }
     }
     private hit(a, b) {
         return (new egret.Rectangle(a.x + this.snake.x - this.radius, a.y + this.snake.y - this.radius, a.width, a.height))
