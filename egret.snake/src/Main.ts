@@ -103,7 +103,7 @@ class Main extends egret.DisplayObjectContainer {
     private onEatFood(i) {
         var judge = 0;
         var ncolor = this.food[i].colornum;
-        var ncount = 0;
+        var ncount = 1;
         var foodcount: ColorCount = new ColorCount(ncolor, ncount);
         this.removeChild(this.food[i]);
         console.log(ncolor);
