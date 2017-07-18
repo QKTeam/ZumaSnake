@@ -41,6 +41,7 @@ class Main extends egret.DisplayObjectContainer {
     private moveEvent: egret.TouchEvent;
     private interval: number;
     private food: Food[];
+    private bigfood: BigFood[];
     private color: Color;
     private radius = 20;
     private foodnum = 20;
@@ -53,6 +54,7 @@ class Main extends egret.DisplayObjectContainer {
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.createGameScene, this);
         this.food = [];
         this.foodcolor = [];
+        this.bigfood = [];
     }
 
    
@@ -85,8 +87,6 @@ class Main extends egret.DisplayObjectContainer {
     private move(e: egret.TouchEvent) {
         this.moveEvent = e;
         if (this.timer == null){
-            console.log('new timer');
-            
             this.timer = new egret.Timer(this.interval);
             if (!this.timer.hasEventListener(egret.TimerEvent.TIMER)){
                 this.timer.addEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
@@ -115,7 +115,16 @@ class Main extends egret.DisplayObjectContainer {
         }
         this.food.splice(i,1);
     }
-
+    private onEatBig(i) {
+        this.removeChild(this.bigfood[i]);
+        this.snake.afterEat(this.bigfood[i].colornum);
+        console.log(this.bigfood[i].colornum);
+        // this.bigfood[i] = null;
+        this.bigfood.slice(i, 1);
+        // this.randomBig();
+        
+    }
+    
     private onTimer() {
         for(var i = 0;i < this.food.length;i++) {
             if(this.hit(this.snake.head,this.food[i])) {
@@ -123,11 +132,18 @@ class Main extends egret.DisplayObjectContainer {
                 break;
             }
         }
+        for(var i = 0;i < this.bigfood.length;i++) {
+            if(this.hit(this.snake.head,this.bigfood[i])) {
+                this.onEatBig(i);
+                break;
+            }
+        }
         this.snake.Move(this.moveEvent, this.interval);
     }
     private randomFood() {
         for(var i = 0;i < this.foodnum;i++) {
-            var foodpoint: Food = new Food(tmpx,tmpy,this.radius);
+            var foodpoint: Food = new Food();
+            foodpoint.init(tmpx,tmpy,this.radius);
             var tmpx = Math.random() * (this.stage.stageWidth - this.radius * 2);
             var tmpy = Math.random() * (this.stage.stageHeight - this.radius * 2);
             this.food.push(foodpoint);
@@ -142,10 +158,12 @@ class Main extends egret.DisplayObjectContainer {
     private startTouchAccelerate() {
         this.timer.delay = 80;
         this.interval = 80;
+        this.snake.startAccelerate();
     }
     private endTouchAccelerate() {
         this.timer.delay = 150;
         this.interval = 150;
+        this.snake.stopAccelerate();
     }
 }
 
