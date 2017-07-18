@@ -69,7 +69,6 @@ class Main extends egret.DisplayObjectContainer {
 
         this.snake = new Snake(100 ,100, 20, 5);
         this.addChild(this.snake);
-        console.log(this.snake);
 
         mouse.enable(this.stage);
         mouse.setMouseMoveEnabled(true);
@@ -101,6 +100,15 @@ class Main extends egret.DisplayObjectContainer {
         this.snake.afterEat(this.food.colornum);
         this.randomFood();
     }
+    private onEatBig() {
+        this.removeChild(this.bigfood);
+        this.snake.afterEat(this.bigfood.colornum);
+        console.log(this.bigfood.colornum);
+        this.bigfood = null;
+        // this.randomBig();
+        
+    }
+    
 
     private randomBig() {
         var tmpx = Math.random() * (this.stage.stageWidth - this.radius * 2);
@@ -111,10 +119,16 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private onTimer() {
-        if(this.hit(this.snake.head,this.food))
-            this.onEat();
+        // if(this.hit(this.snake.head,this.food))
+        //     this.onEat();
         // else if(this.hit(this.snake.head,this.bigfood))
-        //     this.onEatBig();
+        //      this.onEatBig();
+        if(this.bigfood){
+            if(this.hit(this.snake.head,this.bigfood))
+                this.onEatBig();
+        }
+        else if(this.hit(this.snake.head,this.food))
+            this.onEat();
         this.snake.Move(this.moveEvent, this.interval);
     }
     private randomFood() {
