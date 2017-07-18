@@ -44,7 +44,7 @@ class Main extends egret.DisplayObjectContainer {
     private bigfood: BigFood[];
     private color: Color;
     private radius = 20;
-    private foodnum = 20;
+    private foodnum = 40;
     private foodcolor: ColorCount[];
     private foodAccumulate = 3;
 
@@ -101,17 +101,27 @@ class Main extends egret.DisplayObjectContainer {
     
 
     private onEatFood(i) {
+        var judge = 0;
         var ncolor = this.food[i].colornum;
         var ncount = 0;
         var foodcount: ColorCount = new ColorCount(ncolor, ncount);
         this.removeChild(this.food[i]);
+        console.log(ncolor);
+        
         for(var j = 0;j < this.foodcolor.length;j++) {
             if(this.foodcolor[j].color == ncolor) {
                 this.foodcolor[j].count ++;
+                judge = 1;
+                break;
             }
             else {
-                this.foodcolor.push(foodcount);
+                judge = 0;
             }
+        }
+        if(judge == 0) {
+            this.foodcolor.push(foodcount);
+        }
+        for(var j = 0;j < this.foodcolor.length;j++) {
             if(this.foodcolor[j].count >= this.foodAccumulate) {
                 this.foodcolor[j].count -= this.foodAccumulate;
                 this.snake.afterEat(this.foodcolor[j].color);
