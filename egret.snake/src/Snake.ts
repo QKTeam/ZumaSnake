@@ -11,9 +11,9 @@ class Snake extends egret.Sprite{
 	//蛇的速度
 	public speed: number;
 	//加速计时器
-	private AccelerateTimer: egret.Timer;
+	public AccelerateTimer: egret.Timer;
 	//加速累计时间
-	private count: number;
+	public count: number;
 	public constructor(x: number, y: number, r: number, n: number) {
 		super();
 		this.headColor = new Color();
@@ -105,49 +105,7 @@ class Snake extends egret.Sprite{
 		this.setChildIndex(this.body[this.body.length - 1],0);
 	}
 
-	public startAccelerate() {
-		this.AccelerateTimer = new egret.Timer(30);
-		this.AccelerateTimer.addEventListener(egret.TimerEvent.TIMER, function() {
-			this.count++;
-			console.log(this.count);
-			
-			if(this.body.length > 2 && this.count%100 === 0) {
-				var last_body = this.body[this.body.length - 1];
-				this.body.splice(-1, 1);
-				var animate: egret.Tween = egret.Tween.get(last_body);
-				animate.to({scaleX: 0.01, scaleY: 0.01}, 500, egret.Ease.circOut);
-				var time = egret.setTimeout(function() {
-					this.removeChild(last_body);
-				}, this, 500);
-				this.BodytoFood(last_body, last_body.Color);
-				this.count = 0;
-			}
-		}, this);
-		this.AccelerateTimer.start();
-	}
-
-	public stopAccelerate() {
-		this.AccelerateTimer.stop();
-	}
-
-	private BodytoFood(bodypoint: egret.Shape, bodycolor: number) {
-		var food: Food[] = [];
-		for (var i = 0; i < 5; i++) {
-			food[i] = new Food();
-			food[i].Accelerate(bodypoint.x+this.x, bodypoint.y+this.y, this.radius, bodycolor);
-			console.log(bodypoint.x+this.x, bodypoint.y+this.y);
-			
-			console.log(food[i]);
-			
-			this.parent.addChild(food[i]);
-			var animate: egret.Tween = egret.Tween.get(food[i]);
-			var randomAngle = Math.random()*(Math.PI + 1);
-			animate.to({
-				x: this.x+bodypoint.x + 100*Math.cos(randomAngle), 
-				y: this.y+bodypoint.y + 100*Math.sin(randomAngle)
-			}, 500, egret.Ease.circOut);
-		}
-	}
+	
 
 	public GetHead() {
 		return this.body[0];

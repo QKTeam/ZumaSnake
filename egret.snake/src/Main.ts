@@ -72,7 +72,7 @@ class Main extends egret.DisplayObjectContainer {
         this.randomFood();
 
 
-        this.snake = new Snake(100 ,100, 20, 5);
+        this.snake = new Snake(100 ,100, 20, 10);
         this.addChild(this.snake);
 
         mouse.enable(this.stage);
@@ -163,14 +163,55 @@ class Main extends egret.DisplayObjectContainer {
         if(this.snake.body.length > 2){
             this.timer.delay = 80;
             this.interval = 80;
-            this.snake.startAccelerate();
+            this.startAccelerate();
         }
     }
     private endTouchAccelerate() {
         this.timer.delay = 150;
         this.interval = 150;
-        this.snake.stopAccelerate();
+        this.stopAccelerate();
     }
+
+    private startAccelerate() {
+		this.snake.AccelerateTimer = new egret.Timer(30);
+		this.snake.AccelerateTimer.addEventListener(egret.TimerEvent.TIMER, function() {
+			this.snake.count++;
+			
+			if(this.snake.body.length > 2 && this.snake.count%100 === 0) {
+				var last_body = this.snake.body[this.snake.body.length - 1];
+				this.snake.body.splice(-1, 1);
+				var animate: egret.Tween = egret.Tween.get(last_body);
+				animate.to({scaleX: 0.01, scaleY: 0.01}, 500, egret.Ease.circOut);
+				var time = egret.setTimeout(function() {
+					this.snake.removeChild(last_body);
+				}, this, 500);
+				this.BodytoFood(last_body, last_body.Color);
+				this.snake.count = 0;
+			}
+		}, this);
+		this.snake.AccelerateTimer.start();
+	}
+
+	private stopAccelerate() {
+		this.snake.AccelerateTimer.stop();
+	}
+
+	private BodytoFood(bodypoint: egret.Shape, bodycolor: number) {
+		var food: Food[] = [];
+		for (var i = 0; i < 5; i++) {
+			food[i] = new Food();
+			food[i].Accelerate(bodypoint.x+this.snake.x, bodypoint.y+this.snake.y, this.radius, bodycolor);		
+			this.addChild(food[i]);
+            this.setChildIndex(food[i],1);
+            this.food.push(food[i]);
+			var animate: egret.Tween = egret.Tween.get(food[i]);
+			var randomAngle = Math.random()*(Math.PI + 1);
+			animate.to({
+				x: this.snake.x+bodypoint.x + 50*Math.cos(randomAngle), 
+				y: this.snake.y+bodypoint.y + 50*Math.sin(randomAngle)
+			}, 500, egret.Ease.circOut);
+		}
+	}
 }
 
 
