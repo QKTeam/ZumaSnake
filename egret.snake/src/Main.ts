@@ -113,6 +113,7 @@ class Main extends egret.DisplayObjectContainer {
                 this.foodcolor.push(foodcount);
             }
             if(this.foodcolor[j].count >= this.foodAccumulate) {
+                this.foodcolor[j].count -= this.foodAccumulate;
                 this.snake.afterEat(this.foodcolor[j].color);
             }
         }

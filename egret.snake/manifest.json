@@ -15,6 +15,7 @@
 		"bin-debug/BigFood.js",
 		"bin-debug/BodyPoint.js",
 		"bin-debug/Color.js",
+		"bin-debug/ColorCount.js",
 		"bin-debug/Food.js",
 		"bin-debug/LoadingUI.js",
 		"bin-debug/Main.js",
