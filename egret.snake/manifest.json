@@ -12,6 +12,7 @@
 		"libs/modules/mouse/mouse.js"
 	],
 	"game": [
+		"bin-debug/BigFood.js",
 		"bin-debug/BodyPoint.js",
 		"bin-debug/Color.js",
 		"bin-debug/Food.js",

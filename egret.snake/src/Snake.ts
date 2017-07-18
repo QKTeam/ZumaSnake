@@ -32,7 +32,8 @@ class Snake extends egret.Sprite{
 	private Create(x: number, y: number, r: number, n: number) {
 
 		var headcolor = this.headColor.getColor()
-		this.head = new BodyPoint().CreateHead(3, 0x403232, r, headcolor);
+		this.head = new BodyPoint();
+		this.head.CreateHead(3, 0x403232, r, headcolor);
 
 		//设置坐标
 		this.head.x = r;
@@ -49,7 +50,8 @@ class Snake extends egret.Sprite{
 		for (var i = 1; i <= n-1; i++) {
 			var bodyColor: Color = new Color();
 			var bodycolor: number = bodyColor.getColor();
-			var bodypoint: BodyPoint = new BodyPoint().CreateBody(r,bodycolor);
+			var bodypoint: BodyPoint = new BodyPoint();
+			bodypoint.CreateBody(r,bodycolor);
 			bodypoint.x = this.body[this.body.length - 1].x + r;
 			bodypoint.y = this.body[this.body.length - 1].y + r;
 			this.body.push(bodypoint);
@@ -88,7 +90,8 @@ class Snake extends egret.Sprite{
 		}
 	}
 	public afterEat(color:number) {
-		var node: BodyPoint = new BodyPoint().CreateBody(this.radius, color);
+		var node: BodyPoint = new BodyPoint();
+		node.CreateBody(this.radius, color);
 		node.x = this.body[this.body.length - 1].x + this.radius;
 		node.y = this.body[this.body.length - 1].y + this.radius;
 		this.body.push(node);
@@ -113,7 +116,7 @@ class Snake extends egret.Sprite{
 	private BodytoFood(bodypoint: egret.Shape, bodycolor: number) {
 		var food: Food[] = [];
 		for (var i = 0; i < 5; i++) {
-			food[i] = new Food(this.x+bodypoint.x, this.y+bodypoint.y, bodycolor);
+			food[i] = new Food();
 			this.parent.addChild(food[i]);
 			var animate: egret.Tween = egret.Tween.get(food[i]);
 			var randomAngle = Math.random()*(Math.PI + 1);

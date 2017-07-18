@@ -102,10 +102,9 @@ class Main extends egret.DisplayObjectContainer {
     private randomBig() {
         var tmpx = Math.random() * (this.stage.stageWidth - this.radius * 2);
         var tmpy = Math.random() * (this.stage.stageHeight - this.radius * 2);
-        BigFood.A();
         this.bigfood = new BigFood();
         this.bigfood.init(tmpx,tmpy,this.radius,0x5c6bc0);
-        this.addChild(this.bigfood);     
+        this.addChild(this.bigfood);
     }
 
     private onTimer() {

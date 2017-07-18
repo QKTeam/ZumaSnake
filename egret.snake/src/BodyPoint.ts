@@ -12,7 +12,6 @@ class BodyPoint extends egret.Sprite{
 		this.bodypoint.graphics.drawCircle(0,0,r);
 		this.bodypoint.graphics.endFill();
 		this.addChild(this.bodypoint);
-		return this;
 	}
 	public CreateHead(line_R: number, line_C: number, r: number, color: number) {
 		this.bodypoint = new egret.Shape();
@@ -22,6 +21,5 @@ class BodyPoint extends egret.Sprite{
 		this.bodypoint.graphics.drawCircle(0,0,r);
 		this.bodypoint.graphics.endFill();
 		this.addChild(this.bodypoint);
-		return this;
 	}
 }

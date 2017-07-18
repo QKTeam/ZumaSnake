@@ -3,7 +3,7 @@ class BigFood extends egret.Sprite {
         super ();
     }
     private bigfood: egret.Shape;
-    public init(x:number,y:number,r:number,color:number) {
+    public init(x:number,y:number,r:number,color:number): void {
         this.bigfood = new egret.Shape();
         this.bigfood.graphics.beginFill(color);
         this.bigfood.graphics.drawCircle(0,0,r);
@@ -13,9 +13,6 @@ class BigFood extends egret.Sprite {
         this.bigfood.y = r;
         this.x = x;
         this.y = y;
-        return this;
-    }
-    public static A() {
-        alert(1);
+        this.addChild(this.bigfood);
     }
 }
