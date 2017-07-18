@@ -1,4 +1,5 @@
 class BigFood extends egret.Sprite {
+    public colornum: number;
     public constructor() {
         super ();
     }
@@ -8,6 +9,7 @@ class BigFood extends egret.Sprite {
         this.bigfood.graphics.beginFill(color);
         this.bigfood.graphics.drawCircle(0,0,r);
         this.bigfood.graphics.endFill();
+        this.colornum = color;
 
         this.bigfood.x = r;
         this.bigfood.y = r;
@@ -15,4 +17,5 @@ class BigFood extends egret.Sprite {
         this.y = y;
         this.addChild(this.bigfood);
     }
+
 }
