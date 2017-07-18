@@ -15,7 +15,7 @@ class Food extends egret.Sprite {
         this.food.graphics.drawCircle(0,0,r);
         this.food.graphics.endFill();
 
-        this.food.x =r;
+        this.food.x = r;
         this.food.y = r;
         this.x = x;
         this.y = y;
