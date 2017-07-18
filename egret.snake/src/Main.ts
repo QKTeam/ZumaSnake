@@ -67,6 +67,7 @@ class Main extends egret.DisplayObjectContainer {
 
         this.snake = new Snake(100 ,100, 20, 50);
         this.addChild(this.snake);
+        console.log(this.snake);
 
         mouse.enable(this.stage);
         mouse.setMouseMoveEnabled(true);
@@ -80,8 +81,6 @@ class Main extends egret.DisplayObjectContainer {
     private move(e: egret.TouchEvent) {
         this.moveEvent = e;
         if (this.timer == null){
-            console.log('new timer');
-            
             this.timer = new egret.Timer(this.interval);
             if (!this.timer.hasEventListener(egret.TimerEvent.TIMER)){
                 this.timer.addEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
@@ -117,10 +116,12 @@ class Main extends egret.DisplayObjectContainer {
     private startTouchAccelerate() {
         this.timer.delay = 80;
         this.interval = 80;
+        this.snake.startAccelerate();
     }
     private endTouchAccelerate() {
         this.timer.delay = 150;
         this.interval = 150;
+        this.snake.stopAccelerate();
     }
 }
 

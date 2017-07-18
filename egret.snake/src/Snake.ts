@@ -1,15 +1,17 @@
 // 蛇类
 class Snake extends egret.Sprite{
 	//蛇头
-	public head: egret.Shape;
+	public head: BodyPoint;
 	//蛇身半径
 	private radius: number;
 	//蛇身数组
-	private body: egret.Shape[];
+	private body: BodyPoint[];
 	//蛇头颜色
 	private headColor: Color;
 	//蛇的速度
 	public speed: number;
+	//加速计时器
+	private AccelerateTimer: egret.Timer;
 	
 	public constructor(x: number, y: number, r: number, n: number) {
 		super();
@@ -29,11 +31,8 @@ class Snake extends egret.Sprite{
 
 	private Create(x: number, y: number, r: number, n: number) {
 
-		this.head = new egret.Shape();
-		this.head.graphics.lineStyle(3,0x403232);
-		this.head.graphics.beginFill(this.headColor.getColor());
-		this.head.graphics.drawCircle(0,0,r)
-		this.head.graphics.endFill();
+		var headcolor = this.headColor.getColor()
+		this.head = new BodyPoint().CreateHead(3, 0x403232, r, headcolor);
 
 		//设置坐标
 		this.head.x = r;
@@ -48,11 +47,9 @@ class Snake extends egret.Sprite{
 		this.setChildIndex(this.head, -999);
 
 		for (var i = 1; i <= n-1; i++) {
-			var bodycolor: Color = new Color();
-			var bodypoint: egret.Shape = new egret.Shape();
-			bodypoint.graphics.beginFill(bodycolor.getColor());
-			bodypoint.graphics.drawCircle(0,0,r);
-			bodypoint.graphics.endFill();
+			var bodyColor: Color = new Color();
+			var bodycolor: number = bodyColor.getColor();
+			var bodypoint: BodyPoint = new BodyPoint().CreateBody(r,bodycolor);
 			bodypoint.x = this.body[this.body.length - 1].x + r;
 			bodypoint.y = this.body[this.body.length - 1].y + r;
 			this.body.push(bodypoint);
@@ -91,14 +88,43 @@ class Snake extends egret.Sprite{
 		}
 	}
 	public afterEat(color:number) {
-		var node: egret.Shape = new egret.Shape();
-		node.graphics.beginFill(color);
-		node.graphics.drawCircle(0,0,this.radius);
-		node.graphics.endFill();
+		var node: BodyPoint = new BodyPoint().CreateBody(this.radius, color);
 		node.x = this.body[this.body.length - 1].x + this.radius;
 		node.y = this.body[this.body.length - 1].y + this.radius;
 		this.body.push(node);
 		this.addChild(node);
 		this.setChildIndex(this.body[this.body.length - 1],0);
+	}
+
+	public startAccelerate() {
+		this.AccelerateTimer = new egret.Timer(3000);
+		this.AccelerateTimer.addEventListener(egret.TimerEvent.TIMER, function() {
+			var body = this.body[this.body.length - 1];
+			this.body.splice(-1, 1);
+			//this.BodytoFood(body, body.Color);
+		}, this);
+		this.AccelerateTimer.start();
+	}
+
+	public stopAccelerate() {
+		this.AccelerateTimer.reset();
+	}
+
+	private BodytoFood(bodypoint: egret.Shape, bodycolor: number) {
+		var food: Food[] = [];
+		for (var i = 0; i < 5; i++) {
+			food[i] = new Food(this.x+bodypoint.x, this.y+bodypoint.y, bodycolor);
+			this.parent.addChild(food[i]);
+			var animate: egret.Tween = egret.Tween.get(food[i]);
+			var randomAngle = Math.random()*(Math.PI + 1);
+			animate.to({
+				x: this.x+bodypoint.x + 100*Math.cos(randomAngle), 
+				y: this.y+bodypoint.y + 100*Math.sin(randomAngle)
+			}, 100, egret.Ease.circOut);
+		}
+	}
+
+	public GetHead() {
+		return this.body[0];
 	}
 }
