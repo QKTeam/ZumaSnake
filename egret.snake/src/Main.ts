@@ -104,8 +104,10 @@ class Main extends egret.DisplayObjectContainer {
         this.food = new Food(tmpx,tmpy,this.radius);
         this.addChild(this.food);
     }
+       
+
     private hit(a, b) {
-        return (new egret.Rectangle(a.x + this.snake.x,a.y + this.snake.y,a.width,a.height))
+        return (new egret.Rectangle(a.x + this.snake.x - this.radius, a.y + this.snake.y - this.radius, a.width, a.height))
             .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
     }
     private startTouchAccelerate(e: egret.TouchEvent) {
@@ -125,12 +127,11 @@ class Main extends egret.DisplayObjectContainer {
 
     private endTouchAccelerate() {
         this.interval = 200;
+        this.timer.stop();
         this.timer.removeEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
         this.timer = null;
         this.addEventListener(egret.TouchEvent.TOUCH_MOVE, this.move, this);
-        this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this);
-        console.log(this.hasEventListener(mouse.MouseEvent.MOUSE_MOVE));
-        
+        this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this); 
     }
 }
 

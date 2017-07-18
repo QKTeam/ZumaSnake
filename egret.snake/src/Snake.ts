@@ -30,14 +30,14 @@ class Snake extends egret.Sprite{
 	private Create(x: number, y: number, r: number, n: number) {
 
 		this.head = new egret.Shape();
-		this.head.graphics.lineStyle(5,0x403232);
+		this.head.graphics.lineStyle(3,0x403232);
 		this.head.graphics.beginFill(this.headColor.getColor());
-		this.head.graphics.drawCircle(r,r,r)
+		this.head.graphics.drawCircle(0,0,r)
 		this.head.graphics.endFill();
 
 		//设置坐标
-		this.head.x = 0;
-		this.head.y = 0;
+		this.head.x = r;
+		this.head.y = r;
 		this.radius = 20;
 		this.x = x;
 		this.y = y;
@@ -51,7 +51,7 @@ class Snake extends egret.Sprite{
 			var bodycolor: Color = new Color();
 			var bodypoint: egret.Shape = new egret.Shape();
 			bodypoint.graphics.beginFill(bodycolor.getColor());
-			bodypoint.graphics.drawCircle(r,r,r)
+			bodypoint.graphics.drawCircle(0,0,r);
 			bodypoint.graphics.endFill();
 			bodypoint.x = this.body[this.body.length - 1].x + r;
 			bodypoint.y = this.body[this.body.length - 1].y + r;
@@ -93,7 +93,7 @@ class Snake extends egret.Sprite{
 	public afterEat(color:number) {
 		var node: egret.Shape = new egret.Shape();
 		node.graphics.beginFill(color);
-		node.graphics.drawCircle(this.radius,this.radius,this.radius);
+		node.graphics.drawCircle(0,0,this.radius);
 		node.graphics.endFill();
 		node.x = this.body[this.body.length - 1].x + this.radius;
 		node.y = this.body[this.body.length - 1].y + this.radius;
