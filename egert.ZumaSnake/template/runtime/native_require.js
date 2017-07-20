@@ -12,8 +12,12 @@ var game_file_list = [
 	"libs/modules/mouse/mouse.js",
 	"libs/modules/socket.io/socket.io.js",
 	"polyfill/promise.js",
+	"bin-debug/BodyPoint.js",
+	"bin-debug/Color.js",
+	"bin-debug/Food.js",
 	"bin-debug/LoadingUI.js",
 	"bin-debug/Main.js",
+	"bin-debug/Snake.js",
 	//----auto game_file_list end----
 ];
 
