@@ -46,7 +46,7 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
-       
+       let socket: SocketIOClient.Socket = io();
     }
 }
 
