@@ -23,7 +23,8 @@ class Food extends egret.Sprite{
     public CreateAccelerate(x: number,y: number,r: number,color: Color){
         this.color = color;
         this.food = new egret.Shape();
-        this.FoodRadius = r * 0.2 * Math.round(Math.random() * 4);
+        this.intake = Math.round(Math.random() * 3) + 1;
+        this.FoodRadius = r * 0.2 * this.intake;
         this.food.graphics.beginFill(color.Origin);
         this.food.graphics.drawCircle(0,0,this.FoodRadius);
         this.food.graphics.endFill();
