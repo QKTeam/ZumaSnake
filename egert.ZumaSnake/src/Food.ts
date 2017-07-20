@@ -21,8 +21,9 @@ class Food extends egret.Sprite{
     }
     //爆屎
     public CreateAccelerate(x: number,y: number,r: number,color: Color){
+        this.color = color;
         this.food = new egret.Shape();
-        this.FoodRadius = r * 0.1 * Math.round(Math.random() * 4);
+        this.FoodRadius = r * 0.2 * Math.round(Math.random() * 4);
         this.food.graphics.beginFill(color.Origin);
         this.food.graphics.drawCircle(0,0,this.FoodRadius);
         this.food.graphics.endFill();
@@ -32,14 +33,15 @@ class Food extends egret.Sprite{
     }
         //爆尸体
     public GetBigFood(x: number,y: number,r: number,color: Color){
-            this.food = new egret.Shape();
-            this.intake = 5;
-            this.FoodRadius = 0.2 * r * this.intake;
-            this.food.graphics.beginFill(color.Origin);
-            this.food.graphics.drawCircle(0,0,this.FoodRadius);
-            this.food.graphics.endFill();
-            this.x = x;
-            this.y = y;
-            this.addChild(this.food);
+        this.color = color;
+        this.food = new egret.Shape();
+        this.intake = 5;
+        this.FoodRadius = 0.2 * r * this.intake;
+        this.food.graphics.beginFill(color.Origin);
+        this.food.graphics.drawCircle(0,0,this.FoodRadius);
+        this.food.graphics.endFill();
+        this.x = x;
+        this.y = y;
+        this.addChild(this.food);
     }
 }

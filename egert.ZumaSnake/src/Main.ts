@@ -72,7 +72,7 @@ class Main extends egret.DisplayObjectContainer {
         mouse.setMouseMoveEnabled(true);
         this.touchEnabled = true;
 
-        this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this);
+        this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.OnMove, this);
         this.addEventListener(egret.TouchEvent.TOUCH_BEGIN,this.startTouchAccelerate, this);
         this.addEventListener(egret.TouchEvent.TOUCH_END, this.endTouchAccelerate, this);
 

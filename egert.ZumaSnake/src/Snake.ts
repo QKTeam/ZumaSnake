@@ -19,6 +19,7 @@ class Snake extends egret.Sprite{
 		this.BodyList = [];
 		this.speed = 30;
 		this.ColorCount = {};
+		this.count = 0;
 	}
 	//本地蛇生成
 	/**
