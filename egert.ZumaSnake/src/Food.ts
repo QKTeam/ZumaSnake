@@ -10,7 +10,7 @@ class Food extends egret.Sprite{
     public GetRandomFood(r:number) {
         this.food = new egret.Shape();
         this.color = new Color();
-        this.intake = Math.round(Math.random() * 3) + 1;
+        this.intake = Math.round(Math.random() * 2) + 1;
         this.FoodRadius = 0.2 * r * this.intake;
         this.food.graphics.beginFill(this.color.Origin);
         this.food.graphics.drawCircle(0,0,this.FoodRadius);
@@ -23,7 +23,7 @@ class Food extends egret.Sprite{
     public CreateAccelerate(x: number,y: number,r: number,color: Color){
         this.color = color;
         this.food = new egret.Shape();
-        this.intake = Math.round(Math.random() * 3) + 1;
+        this.intake = Math.round(Math.random() * 2) + 1;
         this.FoodRadius = r * 0.2 * this.intake;
         this.food.graphics.beginFill(color.Origin);
         this.food.graphics.drawCircle(0,0,this.FoodRadius);

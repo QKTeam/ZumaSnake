@@ -39,7 +39,7 @@ class Main extends egret.DisplayObjectContainer {
     private interval: number;
     private moveEvent: egret.TouchEvent;
     private timer: egret.Timer;
-    private radius = 20;
+    private radius = 10;
     private foodnum = 40;
     public SnakeLength = 5;
 
@@ -110,9 +110,9 @@ class Main extends egret.DisplayObjectContainer {
         else {
             this.snake.ColorCount[ncolor.Origin] = this.food[i].intake;
         }
-        if(this.snake.ColorCount[ncolor.Origin] >= 5) {
+        if(this.snake.ColorCount[ncolor.Origin] >= 15) {
             this.snake.AfetEat(ncolor);
-            this.snake.ColorCount[ncolor.Origin] -= 5;
+            this.snake.ColorCount[ncolor.Origin] -= 15;
         }
         this.food.splice(i,1);
     }
