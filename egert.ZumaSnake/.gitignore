@@ -1,3 +1,4 @@
 bin-debug/
 bin-release/
 libs/
+node_modules/

@@ -29,11 +29,11 @@
     },
     {
     "name": "mouse",
-    "path": "../mouse"
+    "path": "../lib.mouse"
     },
     {
     "name": "socket.io",
-    "path": "../socket.io"
+    "path": "../lib.socket.io"
     }
   ]
 }
