@@ -171,14 +171,14 @@ class Main extends egret.DisplayObjectContainer {
 	}
 
     private BodytoFood(bodypoint: egret.Shape, bodycolor: Color) {
-		var food: Food[] = [];
+		let food: Food;
 		for (var i = 0; i < 5; i++) {
-			food[i] = new Food();
-			food[i].CreateAccelerate(bodypoint.x+this.snake.x, bodypoint.y+this.snake.y, this.radius, bodycolor);		
-			this.addChild(food[i]);
-            this.setChildIndex(food[i],1);
-            this.food.push(food[i]);
-			var animate: egret.Tween = egret.Tween.get(food[i]);
+			food = new Food();
+			food.CreateAccelerate(bodypoint.x+this.snake.x, bodypoint.y+this.snake.y, this.radius, bodycolor);		
+			this.addChild(food);
+            this.setChildIndex(food,1);
+            this.food.push(food);
+			var animate: egret.Tween = egret.Tween.get(food);
 			var randomAngle = Math.random()*(Math.PI + 1);
 			animate.to({
 				x: this.snake.x+bodypoint.x + 50*Math.cos(randomAngle), 
