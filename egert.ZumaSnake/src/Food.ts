@@ -18,6 +18,10 @@ class Food extends egret.Sprite{
         this.x = Math.random() * 1920;
         this.y = Math.random() * 1080;
         this.addChild(this.food);
+        let animate: egret.Tween = egret.Tween.get(this.food);
+        this.food.scaleX = 0.01;
+        this.food.scaleY = 0.01;
+        animate.to({scaleX: 1.0, scaleY: 1.0}, 300);
     }
     //爆屎
     public CreateAccelerate(x: number,y: number,r: number,color: Color){
