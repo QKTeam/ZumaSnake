@@ -41,6 +41,7 @@ class Main extends egret.DisplayObjectContainer {
     private timer: egret.Timer;
     private radius = 20;
     private foodnum = 40;
+    public SnakeLength = 5;
 
     public constructor() {
         super();
@@ -55,6 +56,8 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
+
+        let socket: SocketIOClient.Socket = io();
         let bg: egret.Shape = new egret.Shape();
         bg.graphics.beginFill(0xffccbc);
         bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageWidth);
@@ -62,8 +65,16 @@ class Main extends egret.DisplayObjectContainer {
         this.addChild(bg);
         this.randomFood();
 
-        this.snake = new Snake(100 ,100, this.radius, 10);
+        this.snake = new Snake();
+        this.snake.Create(100 ,100, this.radius, this.SnakeLength);
         this.addChild(this.snake);
+
+        mouse.enable(this.stage);
+        mouse.setMouseMoveEnabled(true);
+        this.touchEnabled = true;
+        this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN,this.startTouchAccelerate, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_END, this.endTouchAccelerate, this);
     }
 
     private randomFood() {
@@ -73,6 +84,46 @@ class Main extends egret.DisplayObjectContainer {
             this.food.push(foodpoint);
             this.addChild(this.food[i]);
         }
+    }
+
+    private OnMove(e: egret.TouchEvent) {
+        this.moveEvent = e;
+        if (this.timer == null){
+            this.timer = new egret.Timer(this.interval);
+            if (!this.timer.hasEventListener(egret.TimerEvent.TIMER)){
+                this.timer.addEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
+            }
+            this.timer.start();
+        }
+        if (this.snake.BodyList.length <= 2) {
+            this.endTouchAccelerate();
+        }
+    }
+
+    private onEatFood(i) {
+        let ncolor = this.food[i].color;
+        this.removeChild(this.food[i]);
+        if(this.snake.ColorCount[ncolor.Origin]) {
+            this.snake.ColorCount[ncolor.Origin] ++;
+        }
+        else {
+            this.snake.ColorCount[ncolor.Origin] = 1;
+        }
+        this.food.splice(i,1);
+    }
+
+    private onTimer() {
+        for(var i = 0;i < this.food.length;i++) {
+            if(this.hit(this.snake.Head, this.food[i])) {
+                this.onEatFood(i);
+                break;
+            }
+        }
+    }
+
+    private hit(a, b) {
+        return (new egret.Rectangle(a.x + this.snake.x - this.radius, a.y + this.snake.y - this.radius, a.width, a.height))
+            .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
     }
 }
 
