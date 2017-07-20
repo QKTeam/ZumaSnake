@@ -34,9 +34,18 @@ class Main extends egret.DisplayObjectContainer {
      * Process interface loading
      */
     private loadingView: LoadingUI;
+    private snake: Snake;
+    private food: Food[];
+    private interval: number;
+    private moveEvent: egret.TouchEvent;
+    private timer: egret.Timer;
+    private radius = 20;
+    private foodnum = 40;
 
     public constructor() {
         super();
+        this.interval = 150 ;
+        this.food = [];
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.createGameScene, this);
     }
 
@@ -46,7 +55,24 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
-       
+        let bg: egret.Shape = new egret.Shape();
+        bg.graphics.beginFill(0xffccbc);
+        bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageWidth);
+        bg.graphics.endFill();
+        this.addChild(bg);
+        this.randomFood();
+
+        this.snake = new Snake(100 ,100, this.radius, 10);
+        this.addChild(this.snake);
+    }
+
+    private randomFood() {
+        for(let i = 0;i < this.foodnum;i++) {
+            let foodpoint: Food = new Food();
+            foodpoint.GetRandomFood(this.radius);
+            this.food.push(foodpoint);
+            this.addChild(this.food[i]);
+        }
     }
 }
 
