@@ -39,7 +39,7 @@ class Main extends egret.DisplayObjectContainer {
     private interval: number;
     private moveEvent: egret.TouchEvent;
     private timer: egret.Timer;
-    private radius = 20;
+    private radius = 10;
     private foodnum = 40;
     public SnakeLength = 5;
 
@@ -97,7 +97,7 @@ class Main extends egret.DisplayObjectContainer {
             this.timer.start();
         }
         if (this.snake.BodyList.length <= 2) {
-           // this.endTouchAccelerate();
+            this.endTouchAccelerate();
         }
     }
 
@@ -155,12 +155,14 @@ class Main extends egret.DisplayObjectContainer {
 				var last_body = this.snake.BodyList[this.snake.BodyList.length - 1];
 				this.snake.BodyList.splice(-1, 1);
 				var animate: egret.Tween = egret.Tween.get(last_body);
-				animate.to({scaleX: 0.01, scaleY: 0.01}, 500, egret.Ease.circOut);
+				animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
 				var time = egret.setTimeout(function() {
 					this.snake.removeChild(last_body);
 				}, this, 500);
 				this.BodytoFood(last_body, last_body.Color);
 				this.snake.count = 0;
+                this.snake.AccelerateTimer.reset();
+                this.snake.AccelerateTimer.start();
 			}
 		}, this);
 		this.snake.AccelerateTimer.start();
@@ -179,10 +181,11 @@ class Main extends egret.DisplayObjectContainer {
             this.setChildIndex(food,1);
             this.food.push(food);
 			var animate: egret.Tween = egret.Tween.get(food);
-			var randomAngle = Math.random()*(Math.PI + 1);
+			var randomAngle = Math.random()*(Math.PI);
+            var randomLength = Math.random()*70;
 			animate.to({
-				x: this.snake.x+bodypoint.x + 50*Math.cos(randomAngle), 
-				y: this.snake.y+bodypoint.y + 50*Math.sin(randomAngle)
+				x: this.snake.x+bodypoint.x + randomLength*Math.cos(randomAngle), 
+				y: this.snake.y+bodypoint.y + randomLength*Math.sin(randomAngle)
 			}, 500, egret.Ease.circOut);
 		}
 	}
