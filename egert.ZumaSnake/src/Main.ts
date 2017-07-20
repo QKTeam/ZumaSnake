@@ -42,7 +42,7 @@ class Main extends egret.DisplayObjectContainer {
     private radius = 10;
     private foodnum = 233;
     public SnakeLength = 5;
-    public foodadd = 10;
+    public foodadd = 232;
 
     public constructor() {
         super();
@@ -88,7 +88,7 @@ class Main extends egret.DisplayObjectContainer {
         }
     }
     private addFood() {
-        for(let i = 0;i < this.foodadd;i++) {
+        for(let i = this.food.length ;i < this.foodadd;i++) {
             let foodpoint: Food = new Food();
             foodpoint.GetRandomFood(this.radius);
             this.food.push(foodpoint);
