@@ -9,6 +9,11 @@ class Snake extends egret.Sprite{
 	public ColorCount: Object;
 	//蛇的速度
 	public speed: number;
+	//加速计时器
+	public AccelerateTimer: egret.Timer;
+	//加速累计时间
+	public count: number;
+	
 	public constructor() {
 		super();
 		this.BodyList = [];

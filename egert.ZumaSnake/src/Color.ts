@@ -14,7 +14,7 @@ class Color {
     public Bright: number;
 
     public constructor() {
-
+        
     }
 
     public GetRandomColor() {//随机颜色
