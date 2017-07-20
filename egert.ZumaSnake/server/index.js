@@ -4,13 +4,13 @@ var io = require('socket.io')(http);
 
 app.get('/', function(req, res){
 //   res.sendFile(__dirname + '/index.html');
-res.send("welcome");
+// res.send("welcome");
 });
 
 io.on('connection', function(socket){
   console.log('a user connected');
 });
 
-http.listen(5510, function(){
-  console.log('listening on *:5510');
+http.listen(2333, function(){
+  console.log('listening on *:5924');
 });

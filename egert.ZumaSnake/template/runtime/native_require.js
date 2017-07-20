@@ -13,6 +13,7 @@ var game_file_list = [
 	"libs/modules/socket.io/socket.io.js",
 	"polyfill/promise.js",
 	"bin-debug/BodyPoint.js",
+	"bin-debug/Color.js",
 	"bin-debug/Food.js",
 	"bin-debug/LoadingUI.js",
 	"bin-debug/Main.js",

@@ -10,9 +10,9 @@ class Food extends egret.Sprite{
     public GetRandomFood(r:number) {
         this.food = new egret.Shape();
         this.color = new Color();
-        this.intake = Math.round(Math.random() * 4);
+        this.intake = Math.round(Math.random() * 3) + 1;
         this.FoodRadius = 0.2 * r * this.intake;
-        this.food.graphics.beginFill(this.color.origin);
+        this.food.graphics.beginFill(this.color.Origin);
         this.food.graphics.drawCircle(0,0,this.FoodRadius);
         this.food.graphics.endFill();
         this.x = Math.random() * 1920;
@@ -20,10 +20,10 @@ class Food extends egret.Sprite{
         this.addChild(this.food);
     }
     //爆屎
-    public CreateAccelerate(x:number,y:number,r:number,color:Color){
+    public CreateAccelerate(x: number,y: number,r: number,color: Color){
         this.food = new egret.Shape();
         this.FoodRadius = r * 0.1 * Math.round(Math.random() * 4);
-        this.food.graphics.beginFill(color.origin);
+        this.food.graphics.beginFill(color.Origin);
         this.food.graphics.drawCircle(0,0,this.FoodRadius);
         this.food.graphics.endFill();
         this.x = x;
@@ -31,11 +31,11 @@ class Food extends egret.Sprite{
         this.addChild(this.food);
     }
         //爆尸体
-    public GetBigFood(x:number,y:number,r:number,color:color){
+    public GetBigFood(x: number,y: number,r: number,color: Color){
             this.food = new egret.Shape();
             this.intake = 5;
             this.FoodRadius = 0.2 * r * this.intake;
-            this.food.graphics.beginFill(color.origin);
+            this.food.graphics.beginFill(color.Origin);
             this.food.graphics.drawCircle(0,0,this.FoodRadius);
             this.food.graphics.endFill();
             this.x = x;
