@@ -97,7 +97,7 @@ class Main extends egret.DisplayObjectContainer {
             this.timer.start();
         }
         if (this.snake.BodyList.length <= 2) {
-           // this.endTouchAccelerate();
+           this.endTouchAccelerate();
         }
     }
 
