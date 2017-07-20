@@ -40,12 +40,13 @@ class Main extends egret.DisplayObjectContainer {
     private moveEvent: egret.TouchEvent;
     private timer: egret.Timer;
     private radius = 10;
-    private foodnum = 40;
+    private foodnum = 233;
     public SnakeLength = 5;
+    public foodadd = 10;
 
     public constructor() {
         super();
-        this.interval = 150 ;
+        this.interval = 120 ;
         this.food = [];
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.createGameScene, this);
     }
@@ -86,6 +87,14 @@ class Main extends egret.DisplayObjectContainer {
             this.addChild(this.food[i]);
         }
     }
+    private addFood() {
+        for(let i = 0;i < this.foodadd;i++) {
+            let foodpoint: Food = new Food();
+            foodpoint.GetRandomFood(this.radius);
+            this.food.push(foodpoint);
+            this.addChild(this.food[i]);
+        }
+    }
 
     private OnMove(e: egret.TouchEvent) {
         this.moveEvent = e;
@@ -118,6 +127,8 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private onTimer() {
+        if(this.food.length<this.foodadd)
+            this.addFood();
         for(var i = 0;i < this.food.length;i++) {
             if(this.hit(this.snake.Head, this.food[i])) {
                 this.onEatFood(i);
@@ -134,8 +145,8 @@ class Main extends egret.DisplayObjectContainer {
 
     private startTouchAccelerate() {
         if(this.snake.BodyList.length > 2){
-            this.timer.delay = 80;
-            this.interval = 80;
+            this.timer.delay = 70;
+            this.interval = 70;
             this.startAccelerate();
         }
     }
