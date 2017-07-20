@@ -71,9 +71,11 @@ class Main extends egret.DisplayObjectContainer {
         mouse.enable(this.stage);
         mouse.setMouseMoveEnabled(true);
         this.touchEnabled = true;
-        // this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this);
-        // this.addEventListener(egret.TouchEvent.TOUCH_BEGIN,this.startTouchAccelerate, this);
-        // this.addEventListener(egret.TouchEvent.TOUCH_END, this.endTouchAccelerate, this);
+
+        this.addEventListener(mouse.MouseEvent.MOUSE_MOVE, this.move, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_BEGIN,this.startTouchAccelerate, this);
+        this.addEventListener(egret.TouchEvent.TOUCH_END, this.endTouchAccelerate, this);
+
     }
 
     private randomFood() {
@@ -103,10 +105,14 @@ class Main extends egret.DisplayObjectContainer {
         let ncolor = this.food[i].color;
         this.removeChild(this.food[i]);
         if(this.snake.ColorCount[ncolor.Origin]) {
-            this.snake.ColorCount[ncolor.Origin] ++;
+            this.snake.ColorCount[ncolor.Origin] += this.food[i].intake;
         }
         else {
-            this.snake.ColorCount[ncolor.Origin] = 1;
+            this.snake.ColorCount[ncolor.Origin] = this.food[i].intake;
+        }
+        if(this.snake.ColorCount[ncolor.Origin] >= 5) {
+            this.snake.AfetEat(ncolor);
+            this.snake.ColorCount[ncolor.Origin] -= 5;
         }
         this.food.splice(i,1);
     }
@@ -118,12 +124,68 @@ class Main extends egret.DisplayObjectContainer {
                 break;
             }
         }
+        this.snake.Move(this.moveEvent, this.interval);
     }
 
     private hit(a, b) {
         return (new egret.Rectangle(a.x + this.snake.x - this.radius, a.y + this.snake.y - this.radius, a.width, a.height))
             .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
     }
+
+    private startTouchAccelerate() {
+        if(this.snake.BodyList.length > 2){
+            this.timer.delay = 80;
+            this.interval = 80;
+            this.startAccelerate();
+        }
+    }
+
+    private endTouchAccelerate() {
+        this.timer.delay = 150;
+        this.interval = 150;
+        this.stopAccelerate();
+    }
+
+    private startAccelerate() {
+		this.snake.AccelerateTimer = new egret.Timer(30);
+		this.snake.AccelerateTimer.addEventListener(egret.TimerEvent.TIMER, function() {
+			this.snake.count++;
+			
+			if(this.snake.BodyList.length > 2 && this.snake.count%100 === 0) {
+				var last_body = this.snake.BodyList[this.snake.BodyList.length - 1];
+				this.snake.BodyList.splice(-1, 1);
+				var animate: egret.Tween = egret.Tween.get(last_body);
+				animate.to({scaleX: 0.01, scaleY: 0.01}, 500, egret.Ease.circOut);
+				var time = egret.setTimeout(function() {
+					this.snake.removeChild(last_body);
+				}, this, 500);
+				this.BodytoFood(last_body, last_body.Color);
+				this.snake.count = 0;
+			}
+		}, this);
+		this.snake.AccelerateTimer.start();
+	}
+
+    private stopAccelerate() {
+		this.snake.AccelerateTimer.stop();
+	}
+
+    private BodytoFood(bodypoint: egret.Shape, bodycolor: Color) {
+		var food: Food[] = [];
+		for (var i = 0; i < 5; i++) {
+			food[i] = new Food();
+			food[i].CreateAccelerate(bodypoint.x+this.snake.x, bodypoint.y+this.snake.y, this.radius, bodycolor);		
+			this.addChild(food[i]);
+            this.setChildIndex(food[i],1);
+            this.food.push(food[i]);
+			var animate: egret.Tween = egret.Tween.get(food[i]);
+			var randomAngle = Math.random()*(Math.PI + 1);
+			animate.to({
+				x: this.snake.x+bodypoint.x + 50*Math.cos(randomAngle), 
+				y: this.snake.y+bodypoint.y + 50*Math.sin(randomAngle)
+			}, 500, egret.Ease.circOut);
+		}
+	}
 }
 
 
