@@ -95,7 +95,7 @@ class Snake extends egret.Sprite{
 		}
 	}
 
-	public AfetEat (color: Color) {
+	public AfterEat (color: Color) {
 		let node: BodyPoint = new BodyPoint();
 		node.Create(this.radius, color, false);
 		node.x = this.BodyList[this.BodyList.length - 1].x + this.radius;
