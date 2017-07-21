@@ -13,6 +13,8 @@ class Snake extends egret.Sprite{
 	public AccelerateTimer: egret.Timer;
 	//加速累计时间
 	public count: number;
+	//插入时用来判断是否没有插入过
+	public bool:boolean;
 	
 	public constructor() {
 		super();
@@ -20,6 +22,7 @@ class Snake extends egret.Sprite{
 		this.speed = 30*0.5;
 		this.ColorCount = {};
 		this.count = 0;
+		this.bool = true;
 	}
 	//本地蛇生成
 	/**
@@ -32,6 +35,7 @@ class Snake extends egret.Sprite{
 		let headcolor: Color = new Color();
 		this.Head = new BodyPoint();
 		this.Head.Create(r, headcolor, true);
+		this.bool = true;
 
 		//设置坐标
 		this.Head.x = r;
