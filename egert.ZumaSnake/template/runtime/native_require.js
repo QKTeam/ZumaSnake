@@ -16,7 +16,7 @@ var game_file_list = [
 	"bin-debug/Color.js",
 	"bin-debug/Food.js",
 	"bin-debug/LoadingUI.js",
-	"bin-debug/Main111.js",
+	"bin-debug/Main.js",
 	"bin-debug/Snake.js",
 	//----auto game_file_list end----
 ];
