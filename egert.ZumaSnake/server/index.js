@@ -5,6 +5,7 @@ var uuid = require('node-uuid');
 
 var AllSnakes = [];
 var AllFood = [];
+var NewSnakeLength = 5;
 for(var i = 0; i < 233; i++) {
   var food_info = {};
   food_info.id = uuid.v1();
@@ -16,20 +17,31 @@ for(var i = 0; i < 233; i++) {
 }
 io.on('connection', function(socket){
   console.log('a user connected');
+  console.log('<---',AllSnakes);
   socket.on('join', function(data, x, y) {
     var id = uuid.v1();
-    socket.emit('join_id', id);
-    var create_info = JSON.parse(data);
-    var snake_info = {
+    var snakeX = Math.random() * 1920;
+    var snakeY = Math.random() * 1080;
+    var bodypoint = [];
+    for (var i = 0; i < NewSnakeLength; i++) {
+      var bodyinfo = {
+        id: uuid.v1(),
+        color: Math.round(Math.random() * 6)
+      };
+      bodypoint.push(bodyinfo);
+    }
+    var NewSnake = {
       id: id,
-      x: x,
-      y: y,
-      body: create_info
-    };
+      x: snakeX,
+      y: snakeY,
+      body: bodypoint
+    }
+    socket.emit('create',JSON.stringify(NewSnake));
     socket.emit('allfood', JSON.stringify(AllFood));
+    console.log(JSON.stringify(AllSnakes));
     socket.emit('other_snake',JSON.stringify(AllSnakes));
-    AllSnakes.push(snake_info);
-    socket.broadcast.emit('other_join',JSON.stringify(snake_info));
+    AllSnakes.push(NewSnake);
+    socket.broadcast.emit('other_join',JSON.stringify(NewSnake));
     
     socket.on('eatfood',function(data) {
       socket.broadcast.emit('other_eat', data);
@@ -53,6 +65,7 @@ io.on('connection', function(socket){
     socket.on('Drop',function(data) {
       var dropfood = JSON.parse(data);
       var returnfood = [];
+      var bodyid = dropfood.id;
       for (var i = 0; i < 5; i++) {
         var food = {};
         var addfood = {};
@@ -69,27 +82,22 @@ io.on('connection', function(socket){
         returnfood.push(food);
         AllFood.push(addfood);
       }
-      socket.emit('AnimateAddFood', JSON.stringify(returnfood), "true", id);
-      socket.broadcast.emit('AnimateAddFood', JSON.stringify(returnfood), "false", id)
-      
-
-
-      socket.emit('getfoodID',food.id);
-      socket.broadcast.emit('other_drop',JSON.stringify(food));
+      socket.emit('AnimateAddFood', JSON.stringify(returnfood), "true", id, bodyid);
+      socket.broadcast.emit('AnimateAddFood', JSON.stringify(returnfood), "false", id, bodyid)
     });
 
     socket.on('disconnect', function(){
         io.emit('disconnect',id);
-        AllSnakes.splice(AllSnakes.indexOf(snake_info), 1);
+        AllSnakes.splice(AllSnakes.indexOf(NewSnake), 1);
+        console.log(AllSnakes);
     });
 
     socket.on('afterEat', function(data, id) {
-      console.log(data);
       socket.broadcast.emit('other_add_point',data, id);
     });
   });
 });
 
-http.listen(2333, function(){
-  console.log('listening on *:2233');
+http.listen(2222, function(){
+  console.log('listening on *:2222');
 });

@@ -1,7 +1,7 @@
 class BodyPoint extends egret.Sprite{
     public Color: Color;
     public bodypoint: egret.Shape;
-    public id: number;
+    public id: string;
     public constructor(){
         super();
     }
