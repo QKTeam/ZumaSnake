@@ -56,7 +56,9 @@ class Main extends egret.DisplayObjectContainer {
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.createGameScene, this);
     }
 
-    
+    private GiveSnake(snake: Snake) {
+        this.snake = snake;
+    }
     /**
      * 创建游戏场景
      * Create a game scene
@@ -65,112 +67,118 @@ class Main extends egret.DisplayObjectContainer {
         var location;
         location = {}
         location.host = '192.168.1.178';
-        this.socket = io('http://' + location.host + ':2333/');
+        this.socket = io('http://' + location.host + ':2222/');
         let bg: egret.Shape = new egret.Shape();
         bg.graphics.beginFill(0xffccbc);
         bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageWidth);
         bg.graphics.endFill();
         this.addChild(bg);
-        // this.randomFood();
 
-        this.snake = new Snake();
-        this.snake.Create(100 ,100, this.radius, this.SnakeLength);
-        this.addChild(this.snake);
-        let create_info: Array<Object> = [];
-        for (var i = 0; i < this.snake.BodyList.length; i++) {
-            let single_object;
-            single_object = new Object();
-            single_object.x = this.snake.BodyList[i].x;
-            single_object.y = this.snake.BodyList[i].y;
-            single_object.Ocolor = this.snake.BodyList[i].Color.Origin;
-            single_object.Bcolor = this.snake.BodyList[i].Color.Bright;
-            create_info.push(single_object);
-        }
-        
-        this.socket.emit('join',JSON.stringify(create_info), this.snake.x, this.snake.y);
         let snake = this.snake;
         let stage = this;
-        this.socket.on('join_id', function(id){
-            snake.id = id;
+
+        this.socket.emit('join');
+        this.socket.on('create', function(NewSnake) {
+            var SnakeInfo = JSON.parse(NewSnake);
+            snake = new Snake();
+            snake.Create(SnakeInfo);
+            stage.addChild(snake);
+            stage.GiveSnake(snake);
         });
+        
+
+        // this.snake = new Snake();
+        // this.snake.Create(100 ,100, this.radius, this.SnakeLength);
+        // this.addChild(this.snake);
+        // let create_info: Array<Object> = [];
+        // for (var i = 0; i < this.snake.BodyList.length; i++) {
+        //     let single_object;
+        //     single_object = new Object();
+        //     single_object.x = this.snake.BodyList[i].x;
+        //     single_object.y = this.snake.BodyList[i].y;
+        //     single_object.Ocolor = this.snake.BodyList[i].Color.Origin;
+        //     single_object.Bcolor = this.snake.BodyList[i].Color.Bright;
+        //     create_info.push(single_object);
+        // }
+        
+        // this.socket.emit('join',JSON.stringify(create_info), this.snake.x, this.snake.y);
+        
         this.socket.on('other_join', function(data) {
-            console.log(stage.otherSnakes);
-            
             let snake_info: any = JSON.parse(data);
             let Osnake: Snake = new Snake();
             Osnake.CreatOther(snake_info);
-            stage.otherSnakes.push(Osnake);
+            stage.otherSnakes[snake_info.id] = Osnake;
             stage.addChild(Osnake);
-            stage.setChildIndex(Osnake,1);
+            stage.setChildIndex(Osnake,1);            
         });
 
         this.socket.on('allfood', function(data) {
             let food_info: Array<any> = JSON.parse(data);
-            console.log(food_info);
-            
             food_info.forEach(food => {
                 let newFood: Food = new Food();
                 newFood.CreateFood(stage.radius, food.x, food.y, food.color, food.id, food.intake);
-                
                 stage.addChild(newFood);
                 stage.setChildIndex(newFood, 1);
                 stage.food.push(newFood);
             });
         });
-
         this.socket.on('other_eat', function(id) {
             let food_info = stage.GetFoodByID(id);
             if (food_info != null){
                 stage.removeChild(food_info[1]);
-            stage.food.splice(food_info[0], 1);
+                stage.food.splice(food_info[0], 1);
             }
         });
 
         this.socket.on('other_snake', function(data) {
             let snakes: Array<any> = JSON.parse(data);
+            console.log(snakes);
+            
             snakes.forEach(snake => {
                 let Osnake: Snake = new Snake();
                 Osnake.CreatOther(snake);
-                stage.otherSnakes.push(Osnake);
+                stage.otherSnakes[snake.id] = Osnake;
                 stage.addChild(Osnake);
                 stage.setChildIndex(Osnake,1);
             });
         });
 
         this.socket.on('disconnect', function(id) {
-            let info: Array<any> = stage.GetSnakeByID(id);
-            if(info !== null){
-                let ReSnake = info[1];
-                let index = info[0];
-                stage.removeChild(ReSnake);
-                stage.otherSnakes.splice(index, 1);
+            if(stage.otherSnakes[id] !== undefined){
+                stage.removeChild(stage.otherSnakes[id]);
+                delete stage.otherSnakes[id];
             }
         });
 
-        this.socket.on('AnimateAddFood', function(data, islocal, id) {
+        this.socket.on('AnimateAddFood', function(data, islocal, id, bodyid) {
             let addfood: Array<any> = JSON.parse(data);
             if (islocal === "true") {
-                console.log('true');
+                var find = stage.GetBodyPointByID(bodyid, stage.snake);
+                console.log(find);
+                console.log(stage.snake);
                 
-                var last_body = stage.snake.BodyList[stage.snake.BodyList.length - 1];
-                stage.snake.BodyList.splice(-1, 1);
-                var animate: egret.Tween = egret.Tween.get(last_body);
-                animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
-                var time = egret.setTimeout(function() {
-                    stage.snake.removeChild(last_body);
-                }, stage, 500);
-            }
-            else {
-                console.log('false');
-                
-                let findsnake:Array<any> = stage.GetSnakeByID(id);
-                if(findsnake !== null){
-                    var last_body:BodyPoint = findsnake[1].BodyList[findsnake[1].BodyList.length - 1];
-                    findsnake[1].BodyList.splice(-1, 1);
+                if(find !== null){
+                    var last_body = find[1];
+                    stage.snake.BodyList.splice(find[0], 1);
                     var animate: egret.Tween = egret.Tween.get(last_body);
                     animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
                     var time = egret.setTimeout(function() {
-                        findsnake[1].removeChild(last_body);
+                        stage.snake.removeChild(last_body);
+                    }, stage, 500);
+                }
+            }
+            else {
+                let findsnake = stage.otherSnakes[id];
+                console.log(findsnake);
+                
+                if(findsnake !== undefined){
+                    var find = stage.GetBodyPointByID(bodyid, findsnake);
+                    var last_body = find[1];
+                    findsnake.BodyList.splice(find[0], 1);
+                    var animate: egret.Tween = egret.Tween.get(last_body);
+                    animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
+                    var time = egret.setTimeout(function() {
+                        findsnake.removeChild(last_body);
                     }, stage, 500);
                 }
             }
@@ -181,16 +189,16 @@ class Main extends egret.DisplayObjectContainer {
 
         this.socket.on('move', function(data) {
             let snake_info: any = JSON.parse(data);
-            let findsnake:Array<any> = stage.GetSnakeByID(snake_info.id);
-            if(findsnake !== null)
-            findsnake[1].OtherMove(snake_info, 80);
+            let findsnake = stage.otherSnakes[snake_info.id];
+            if(findsnake !== undefined)
+            findsnake.OtherMove(snake_info, 80);
         });
 
         this.socket.on('other_add_point', function(data, id) {
             let addpoint = JSON.parse(data);
-            let findsnake = stage.GetSnakeByID(id);
-            if (findsnake !== null) {
-                findsnake[1].OtherAddPoint(addpoint.x, addpoint.y, addpoint.Ocolor, addpoint.Bcolor);
+            let findsnake = stage.otherSnakes[id];
+            if (findsnake !== undefined) {
+                findsnake.OtherAddPoint(addpoint.x, addpoint.y, addpoint.Ocolor, addpoint.Bcolor);
             }
         });
 
@@ -210,14 +218,16 @@ class Main extends egret.DisplayObjectContainer {
     }
     private GetOtherMove() {
         let move_info: Array<Object> = [];
-        for (var i = 0; i < this.snake.BodyList.length; i++) {
-            let single_object;
-            single_object = new Object();
-            single_object.x = this.snake.BodyList[i].x;
-            single_object.y = this.snake.BodyList[i].y;
-            move_info.push(single_object);
+        if (this.snake !== undefined){
+            for (var i = 0; i < this.snake.BodyList.length; i++) {
+                let single_object;
+                single_object = new Object();
+                single_object.x = this.snake.BodyList[i].x;
+                single_object.y = this.snake.BodyList[i].y;
+                move_info.push(single_object);
+            }
+            this.socket.emit('move',JSON.stringify(move_info), this.snake.id);
         }
-        this.socket.emit('move',JSON.stringify(move_info), this.snake.id);
     }
     private randomFood() {
         for(let i = 0;i < this.foodnum;i++) {
@@ -237,16 +247,18 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private OnMove(e: egret.TouchEvent) {
-        this.moveEvent = e;
-        if (this.timer == null){
-            this.timer = new egret.Timer(this.interval);
-            if (!this.timer.hasEventListener(egret.TimerEvent.TIMER)){
-                this.timer.addEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
+        if (this.snake !== undefined){
+            this.moveEvent = e;
+            if (this.timer == null){
+                this.timer = new egret.Timer(this.interval);
+                if (!this.timer.hasEventListener(egret.TimerEvent.TIMER)){
+                    this.timer.addEventListener(egret.TimerEvent.TIMER, this.onTimer, this);
+                }
+                this.timer.start();
             }
-            this.timer.start();
-        }
-        if (this.snake.BodyList.length <= 2) {
-            this.endTouchAccelerate();
+            if (this.snake.BodyList.length <= 2) {
+                this.endTouchAccelerate();
+            }
         }
     }
 
@@ -408,17 +420,21 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private startTouchAccelerate() {
-        if(this.snake.BodyList.length > 2){
-            this.timer.delay = 70;
-            this.interval = 70;
-            this.startAccelerate();
+        if (this.snake !== undefined){
+            if(this.snake.BodyList.length > 2){
+                this.timer.delay = 70;
+                this.interval = 70;
+                this.startAccelerate();
+            }
         }
     }
 
     private endTouchAccelerate() {
-        this.timer.delay = 150;
-        this.interval = 150;
-        this.stopAccelerate();
+        if (this.snake !== undefined){
+            this.timer.delay = 150;
+            this.interval = 150;
+            this.stopAccelerate();
+        }
     }
 
     private startAccelerate() {
@@ -428,7 +444,10 @@ class Main extends egret.DisplayObjectContainer {
 			
 			if(this.snake.BodyList.length > 2 && this.snake.count%100 === 0) {
 				var last_body = this.snake.BodyList[this.snake.BodyList.length - 1];
+                console.log(last_body);
+                
                 var drop_body = {
+                    id: last_body.id,
                     x: last_body.x + this.snake.x,
                     y: last_body.y + this.snake.y,
                     color: last_body.Color.OriginColor.indexOf(last_body.Color.Origin)
@@ -458,18 +477,6 @@ class Main extends egret.DisplayObjectContainer {
         }, 500, egret.Ease.circOut);
 	}
 
-    private GetSnakeByID(id: string): Array<any> {
-        for (var i = 0; i < this.otherSnakes.length; i++) {
-            if (this.otherSnakes[i].id === id) {
-                var snake = [];
-                snake[0] = i;
-                snake[1] = this.otherSnakes[i];
-                return snake;
-            }
-        }
-        return null;
-    }
-
     private GetFoodByID(id :string): Array<any> {
         for (var i = 0; i < this.food.length; i++) {
             if (this.food[i].id === id) {
@@ -481,6 +488,16 @@ class Main extends egret.DisplayObjectContainer {
         }
         return null;
     }
+
+    private GetBodyPointByID(bodyid: string, snake: Snake) {
+        for (var i = 0; i < snake.BodyList.length; i++) {
+            if (snake.BodyList[i].id === bodyid) {
+                var info = [];
+                info[0] = i;
+                info[1] = snake.BodyList[i];
+                return info;
+            }
+        }
+        return null;
+    }
 }
-
-

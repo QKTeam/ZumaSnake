@@ -13,6 +13,8 @@ class Snake extends egret.Sprite{
 	public AccelerateTimer: egret.Timer;
 	//加速累计时间
 	public count: number;
+	//插入时用来判断是否没有插入过
+	public bool:boolean;
 
 	public id: String;
 	
@@ -22,26 +24,29 @@ class Snake extends egret.Sprite{
 		this.speed = 30*0.5;
 		this.ColorCount = {};
 		this.count = 0;
+		this.bool = true;
 		this.radius = 10;
 	}
 	//本地蛇生成
 	/**
-	 * x 蛇容器横坐标
-	 * y 蛇容器纵坐标
 	 * r 蛇身半径
-	 * n 蛇身长度
+	 * bodypoint 蛇身信息
 	 */
-	public Create(x: number, y:number, r: number, n:number) {
+	public Create(bodypointInfo) {
+		this.id = bodypointInfo.id;
 		let headcolor: Color = new Color();
+		headcolor.Origin = headcolor.OriginColor[bodypointInfo.body[0].color];
+		headcolor.Bright = headcolor.BrightColor[bodypointInfo.body[0].color];
 		this.Head = new BodyPoint();
-		this.Head.Create(r, headcolor, true);
+		this.Head.Create(this.radius, headcolor, true);
+		this.bool = true;
 
 		//设置坐标
-		this.Head.x = r;
-		this.Head.y = r;
-		this.radius = r;
-		this.x = x;
-		this.y = y;
+		this.Head.x = this.radius;
+		this.Head.y = this.radius;
+		this.Head.id = bodypointInfo.body[0].id;
+		this.x = bodypointInfo.x;
+		this.y = bodypointInfo.y;
 
 		//加入数组
 		this.BodyList.push(this.Head);
@@ -52,15 +57,18 @@ class Snake extends egret.Sprite{
 		animate.to({scaleX: 1.0, scaleY: 1.0},300);
 		this.setChildIndex(this.Head, -999);
 
-		for (var i = 1; i <= n-1; i++) {
+		for (var i = 1; i < bodypointInfo.body.length; i++) {
 			let bodycolor: Color = new Color();
+			bodycolor.Origin = headcolor.OriginColor[bodypointInfo.body[i].color];
+			bodycolor.Bright = headcolor.BrightColor[bodypointInfo.body[i].color];
 			let bodypoint: BodyPoint = new BodyPoint();
-			bodypoint.Create(r, bodycolor, false);
-			bodypoint.x = this.BodyList[this.BodyList.length - 1].x;
-			bodypoint.y = this.BodyList[this.BodyList.length - 1].y;
+			bodypoint.Create(this.radius, bodycolor, false);
+			bodypoint.x = this.radius;
+			bodypoint.y = this.radius;
+			bodypoint.id = bodypointInfo.body[i].id;
 			this.BodyList.push(bodypoint);
-			bodypoint.scaleX = 0.01;
-			bodypoint.scaleY = 0.01;
+			bodypoint.x = 0.01;
+			bodypoint.y = 0.01;
 			animate = egret.Tween.get(bodypoint);
 			this.addChild(bodypoint);
 			animate.to({scaleX: 1.0, scaleY: 1.0},300);
@@ -113,11 +121,12 @@ class Snake extends egret.Sprite{
 		this.id = info.id;
 		this.Head = new BodyPoint();
 		let headcolor: Color = new Color();
-		headcolor.Origin = info.body[0].Ocolor;
-		headcolor.Bright = info.body[0].Bcolor;
+		headcolor.Origin = headcolor.OriginColor[info.body[0].color];
+		headcolor.Bright = headcolor.BrightColor[info.body[0].color];
 		this.Head.Create(this.radius, headcolor, true);
 		this.Head.x = this.radius;
 		this.Head.y = this.radius;
+		this.Head.id = info.body[0].id;
 		this.x = info.x;
 		this.y = info.y;
 		this.BodyList.push(this.Head);
@@ -128,14 +137,15 @@ class Snake extends egret.Sprite{
 		animate.to({scaleX: 1.0, scaleY: 1.0},300);
 		this.setChildIndex(this.Head, -999);
 
-		for(var i = 1; i <= info.body.length - 1; i++) {
+		for(var i = 1; i < info.body.length; i++) {
 			let bodypoint: BodyPoint = new BodyPoint();
 			let bodycolor: Color = new Color();
-			bodycolor.Origin = info.body[i].Ocolor;
-			bodycolor.Bright = info.body[i].Bcolor;
+			bodycolor.Origin = bodycolor.OriginColor[info.body[i].color];
+			bodycolor.Bright = bodycolor.BrightColor[info.body[i].color];
 			bodypoint.Create(this.radius, bodycolor, false);
-			bodypoint.x = info.body[i].x;
-			bodypoint.y = info.body[i].y;
+			bodypoint.x = info.x;
+			bodypoint.y = info.y;
+			bodypoint.id = info.body[i].id;
 			this.BodyList.push(bodypoint);
 			bodypoint.scaleX = 0.01;
 			bodypoint.scaleY = 0.01;
