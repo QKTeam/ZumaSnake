@@ -15,6 +15,8 @@ class Snake extends egret.Sprite{
 	public count: number;
 	//插入时用来判断是否没有插入过
 	public bool:boolean;
+
+	public id: String;
 	
 	public constructor() {
 		super();
@@ -23,6 +25,7 @@ class Snake extends egret.Sprite{
 		this.ColorCount = {};
 		this.count = 0;
 		this.bool = true;
+		this.radius = 10;
 	}
 	//本地蛇生成
 	/**
@@ -69,9 +72,6 @@ class Snake extends egret.Sprite{
 		}
 	}
 
-	public Socket_Create_Others() {
-
-	}
 
 	public Move(e: egret.TouchEvent, interval: number) {
 		let mouseX = e.stageX;
@@ -104,6 +104,68 @@ class Snake extends egret.Sprite{
 		node.Create(this.radius, color, false);
 		node.x = this.BodyList[this.BodyList.length - 1].x + this.radius;
 		node.y = this.BodyList[this.BodyList.length - 1].y + this.radius;
+		node.scaleX = 0.01;
+		node.scaleY = 0.01;
+		this.BodyList.push(node);
+		this.addChild(node);
+		var animate: egret.Tween = egret.Tween.get(node);
+		animate.to({scaleX: 1.0, scaleY: 1.0},500,egret.Ease.circOut);
+		this.setChildIndex(this.BodyList[this.BodyList.length - 1],0);
+	}
+
+	public CreatOther(info: any) {
+		this.id = info.id;
+		this.Head = new BodyPoint();
+		let headcolor: Color = new Color();
+		headcolor.Origin = info.body[0].Ocolor;
+		headcolor.Bright = info.body[0].Bcolor;
+		this.Head.Create(this.radius, headcolor, true);
+		this.Head.x = this.radius;
+		this.Head.y = this.radius;
+		this.x = info.x;
+		this.y = info.y;
+		this.BodyList.push(this.Head);
+		this.Head.scaleX = 0.01;
+		this.Head.scaleY = 0.01;
+		let animate: egret.Tween = egret.Tween.get(this.Head);
+		this.addChild(this.Head);
+		animate.to({scaleX: 1.0, scaleY: 1.0},300);
+		this.setChildIndex(this.Head, -999);
+
+		for(var i = 1; i <= info.body.length - 1; i++) {
+			let bodypoint: BodyPoint = new BodyPoint();
+			let bodycolor: Color = new Color();
+			bodycolor.Origin = info.body[i].Ocolor;
+			bodycolor.Bright = info.body[i].Bcolor;
+			bodypoint.Create(this.radius, bodycolor, false);
+			bodypoint.x = info.body[i].x;
+			bodypoint.y = info.body[i].y;
+			this.BodyList.push(bodypoint);
+			bodypoint.scaleX = 0.01;
+			bodypoint.scaleY = 0.01;
+			animate = egret.Tween.get(bodypoint);
+			this.addChild(bodypoint);
+			animate.to({scaleX: 1.0, scaleY: 1.0},300);
+			this.setChildIndex(bodypoint, 0);
+		}
+	}
+
+
+	public OtherMove(info: any, interval) {
+		for(var i = 0; i < Math.min(info.body.length, this.BodyList.length); i++) {
+			let animate: egret.Tween = egret.Tween.get(this.BodyList[i]);
+			animate.to({x: info.body[i].x, y: info.body[i].y},interval);
+		}
+	}
+
+	public OtherAddPoint (x: number, y: number, Ocolor: number, Bcolor: number) {
+		let node: BodyPoint = new BodyPoint();
+		let nodecolor = new Color();
+		nodecolor.Bright = Bcolor;
+		nodecolor.Origin = Ocolor;
+		node.Create(this.radius, nodecolor, false);
+		node.x = x - this.x;
+		node.y = y - this.y;
 		node.scaleX = 0.01;
 		node.scaleY = 0.01;
 		this.BodyList.push(node);
