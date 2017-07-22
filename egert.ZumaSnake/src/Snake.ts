@@ -58,6 +58,7 @@ class Snake extends egret.Sprite{
 		this.setChildIndex(this.Head, -999);
 
 		for (var i = 1; i < bodypointInfo.body.length; i++) {
+			console.log('data-length',bodypointInfo.body.length)
 			let bodycolor: Color = new Color();
 			bodycolor.Origin = headcolor.OriginColor[bodypointInfo.body[i].color];
 			bodycolor.Bright = headcolor.BrightColor[bodypointInfo.body[i].color];
@@ -103,9 +104,13 @@ class Snake extends egret.Sprite{
 		}
 	}
 
-	public AfetEat (color: Color) {
+	public AfterEat (color_info, id) {
 		let node: BodyPoint = new BodyPoint();
+		let color = new Color();
+		color.Bright = color_info.Bcolor;
+		color.Origin = color_info.Ocolor;
 		node.Create(this.radius, color, false);
+		node.id = id;
 		node.x = this.BodyList[this.BodyList.length - 1].x + this.radius;
 		node.y = this.BodyList[this.BodyList.length - 1].y + this.radius;
 		node.scaleX = 0.01;

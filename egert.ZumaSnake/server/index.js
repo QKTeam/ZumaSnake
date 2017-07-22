@@ -16,8 +16,7 @@ for(var i = 0; i < 233; i++) {
   AllFood.push(food_info);
 }
 io.on('connection', function(socket){
-  console.log('a user connected');
-  console.log('<---',AllSnakes);
+  console.log('a user connected')
   socket.on('join', function(data, x, y) {
     var id = uuid.v1();
     var snakeX = Math.random() * 1920;
@@ -38,7 +37,6 @@ io.on('connection', function(socket){
     }
     socket.emit('create',JSON.stringify(NewSnake));
     socket.emit('allfood', JSON.stringify(AllFood));
-    console.log(JSON.stringify(AllSnakes));
     socket.emit('other_snake',JSON.stringify(AllSnakes));
     AllSnakes.push(NewSnake);
     socket.broadcast.emit('other_join',JSON.stringify(NewSnake));
@@ -63,7 +61,9 @@ io.on('connection', function(socket){
     });
 
     socket.on('Drop',function(data) {
+      
       var dropfood = JSON.parse(data);
+      console.log(dropfood);
       var returnfood = [];
       var bodyid = dropfood.id;
       for (var i = 0; i < 5; i++) {
@@ -89,11 +89,12 @@ io.on('connection', function(socket){
     socket.on('disconnect', function(){
         io.emit('disconnect',id);
         AllSnakes.splice(AllSnakes.indexOf(NewSnake), 1);
-        console.log(AllSnakes);
     });
-
-    socket.on('afterEat', function(data, id) {
-      socket.broadcast.emit('other_add_point',data, id);
+    
+    socket.on('afterEat', function(id, data) {
+      var food_id = uuid.v1();
+      socket.emit('own_add_point',data, food_id);
+      socket.broadcast.emit('other_add_point', id, data, food_id)
     });
   });
 });
