@@ -46,6 +46,7 @@ class Main extends egret.DisplayObjectContainer {
     public foodadd = 10;
     private socket: SocketIOClient.Socket;
     private GetMoveTimer: egret.Timer;
+    private SnakeLineWidth = 4;
 
     public constructor() {
         super();
@@ -82,6 +83,7 @@ class Main extends egret.DisplayObjectContainer {
         this.socket.on('create', function(NewSnake) {
             var SnakeInfo = JSON.parse(NewSnake);
             GiveSnakeToStage(SnakeInfo);
+            console.log('join',stage.otherSnakes);
         });
         
         function GiveSnakeToStage(SnakeInfo) {
@@ -113,7 +115,8 @@ class Main extends egret.DisplayObjectContainer {
             Osnake.CreatOther(snake_info);
             stage.otherSnakes[snake_info.id] = Osnake;
             stage.addChild(Osnake);
-            stage.setChildIndex(Osnake,1);            
+            stage.setChildIndex(Osnake,1);
+            console.log('other join',stage.otherSnakes);         
         });
 
         this.socket.on('allfood', function(data) {
@@ -143,12 +146,17 @@ class Main extends egret.DisplayObjectContainer {
                 stage.addChild(Osnake);
                 stage.setChildIndex(Osnake,1);
             });
+            console.log('other snake',stage.otherSnakes);
+            
         });
 
         this.socket.on('disconnect', function(id) {
             if(stage.otherSnakes[id] !== undefined){
-                stage.removeChild(stage.otherSnakes[id]);
-                delete stage.otherSnakes[id];
+                stage.otherSnakes[id].RemoveSnake();
+                var delay = setTimeout(function() {
+                    stage.removeChild(stage.otherSnakes[id]);
+                    delete stage.otherSnakes[id];
+                }, 300);
             }
         });
 
@@ -224,9 +232,13 @@ class Main extends egret.DisplayObjectContainer {
         if (this.snake !== undefined){
             for (var i = 0; i < this.snake.BodyList.length; i++) {
                 let single_object;
-                single_object = new Object();
-                single_object.x = this.snake.BodyList[i].x;
-                single_object.y = this.snake.BodyList[i].y;
+                let getcolor = new Color();
+                single_object = {
+                    id: this.snake.BodyList[i].id,
+                    x: this.snake.BodyList[i].x,
+                    y: this.snake.BodyList[i].y,
+                    color: getcolor.OriginColor.indexOf(this.snake.BodyList[i].Color.Origin)
+                }
                 move_info.push(single_object);
             }
             this.socket.emit('move',JSON.stringify(move_info), this.snake.id);
@@ -297,24 +309,115 @@ class Main extends egret.DisplayObjectContainer {
                 break;
             }
         }
-        
-        
         this.snake.Move(this.moveEvent, this.interval);
-        let move_info: Array<Object> = [];
-        for (var i = 0; i < this.snake.BodyList.length; i++) {
-            let single_object;
-            single_object = new Object();
-            single_object.x = this.snake.BodyList[i].x;
-            single_object.y = this.snake.BodyList[i].y;
-            move_info.push(single_object);
-        }
-        this.socket.emit('move',JSON.stringify(move_info), this.snake.id);
+        // //蛇碰撞
+        // for(var key in this.otherSnakes) {
+        //     let flag = 0;
+        //     for(var j = 0; j < this.otherSnakes[key].BodyList.length; j++) {
+        //         let head = this.snake.Head;
+        //         //蛇头
+        //         if(j = 0) {}
+        //         else if(j > 0 || j < this.otherSnakes[key].BodyList.length - 1) {
+        //             let Mbody = this.otherSnakes[key].BodyList[j];
+        //             let Lbody = this.otherSnakes[key].BodyList[j-1];
+        //             let Rbody = this.otherSnakes[key].BodyList[j+1];
+        //             //返回插入位置
+        //             if(this.snakeHitCheck(head, Mbody, Lbody, Rbody, key, j).bool) {
+        //                 let insertPos = j + this.snakeHitCheck(head, Mbody, Lbody, Rbody, key, j).nvalue;
+        //                 this.snakeInsert(insertPos, head, key);
+        //                 flag = 1;
+        //                 break;
+        //             }
+        //         }
+        //         //蛇尾
+        //         else if(j = this.otherSnakes[key].BodyList.length - 1) {
+        //             this.snakeInsert(j, head, key);
+        //             flag = 1;
+        //         }
+        //     }
+        //     if(flag === 1) break;
+        // }
     }
 
+    /**
+     * 蛇碰撞插入
+     */
+    private snakeInsert(pos: number, head: any, key: any) {
+        this.otherSnakes[key].BodyList.splice(pos, 0, head);
+        this.snake.BodyList.splice(0, 1);
+        this.ZumaRemove(pos, key);
+    }
+
+    /**
+     * 蛇身消除判断
+     */
+    private ZumaRemove(pos: number, key) {
+        let count = 1;
+        let stamp = 0;
+        let FlagColor = this.otherSnakes[key].BodyList[pos].Color.Origin;
+        for(var j = pos - 1; j > 1; j--) {
+            if(this.otherSnakes[key].BodyList[j].Color.Origin === FlagColor) {
+                count++;
+                stamp = j;
+            }
+            else break;
+        }
+        for(var k = pos + 1; k < this.otherSnakes[key].BodyList.length; k++) {
+            if(this.otherSnakes[key].BodyList[k].Color.Origin === FlagColor) {
+                count++;
+            }
+            else break;
+        }
+        //消除三个以上相同颜色蛇身
+        if(count > 2) {
+            for(var j = stamp; j < stamp + count; j++) {
+                this.removeChild(this.otherSnakes[key].BodyList[j]);
+            }
+            this.otherSnakes[key].BodyList.splice(stamp, count);
+            this.ZumaRemove(stamp, key);//递归消除
+        }
+        else return;//递归结束
+    }
 
     private hit(a, b) {
         return (new egret.Rectangle(a.x + this.snake.x - this.radius, a.y + this.snake.y - this.radius, a.width, a.height))
             .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
+    }
+
+    /**
+     * 蛇碰撞检查
+     */
+    private snakeHitCheck(a, M, L, R, key, j) {
+        let rsquare = 4 * (this.radius + this.SnakeLineWidth) * (this.radius + this.SnakeLineWidth);
+        let Mdx = (a.x + this.snake.x - M.x - this.otherSnakes[key].BodyList[j].x);
+        let Mdy = (a.y + this.snake.y - M.y - this.otherSnakes[key].BodyList[j].y);
+        let Mdist = Mdx*Mdx + Mdy*Mdy;
+        let judge;
+        judge = new Object();
+        judge.bool = false;
+        judge.nvalue = 0;
+        
+        //碰撞触发
+        if(Mdist <= rsquare) {
+            let Ldx = (a.x + this.snake.x - L.x - this.otherSnakes[key].BodyList[j].x);
+            let Ldy = (a.y + this.snake.y - L.y - this.otherSnakes[key].BodyList[j].y);
+            let Rdx = (a.x + this.snake.x - R.x - this.otherSnakes[key].BodyList[j].x);
+            let Rdy = (a.y + this.snake.y - R.y - this.otherSnakes[key].BodyList[j].y);
+            let Ldist = Ldx*Ldx + Ldy*Ldy;
+            let Rdist = Rdx*Rdx + Rdy*Rdy;
+            if(Ldist < Rdist) {
+                judge.bool = true;
+                judge.nvalue = 0;
+            }
+            else {
+                judge.bool = true;
+                judge.nvalue = 1;
+            }
+        }
+        else {
+            judge.bool = false;
+        }
+        return judge;
     }
 
     private startTouchAccelerate() {
@@ -355,8 +458,6 @@ class Main extends egret.DisplayObjectContainer {
             this.socket.emit('Drop', JSON.stringify(drop_body));
             this.snake.count = 0;
         }
-        console.log('inaccelerate');
-        
     }
 
     private startAccelerate() {
@@ -372,7 +473,6 @@ class Main extends egret.DisplayObjectContainer {
             if(this.snake.AccelerateTimer.hasEventListener(egret.TimerEvent.TIMER)){
                 this.snake.AccelerateTimer.stop();
                 this.snake.AccelerateTimer.removeEventListener(egret.TimerEvent.TIMER, this.IfDropBody, this);
-                console.log('removed');
             }
         }
 	}

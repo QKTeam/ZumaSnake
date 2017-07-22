@@ -185,4 +185,11 @@ class Snake extends egret.Sprite{
 		animate.to({scaleX: 1.0, scaleY: 1.0},500,egret.Ease.circOut);
 		this.setChildIndex(this.BodyList[this.BodyList.length - 1],0);
 	}
+
+	public RemoveSnake() {
+		this.BodyList.forEach(bodypoint => {
+			let animate = egret.Tween.get(bodypoint);
+			animate.to({scaleX: 0.01, scaleY: 0.01}, 300);
+		});
+	}
 }

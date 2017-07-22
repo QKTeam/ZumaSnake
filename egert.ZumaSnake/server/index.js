@@ -1,11 +1,14 @@
 var app = require('express')();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http, {
+  pingTimeout: 1000,
+  pingInterval: 100,
+});
 var uuid = require('node-uuid');
 
 var AllSnakes = [];
 var AllFood = [];
-var NewSnakeLength = 5;
+var NewSnakeLength = 20;
 for(var i = 0; i < 233; i++) {
   var food_info = {};
   food_info.id = uuid.v1();
@@ -16,7 +19,7 @@ for(var i = 0; i < 233; i++) {
   AllFood.push(food_info);
 }
 io.on('connection', function(socket){
-  console.log('a user connected')
+  console.log('a user connected');
   socket.on('join', function(data, x, y) {
     var id = uuid.v1();
     var snakeX = Math.random() * 1920;
@@ -25,6 +28,8 @@ io.on('connection', function(socket){
     for (var i = 0; i < NewSnakeLength; i++) {
       var bodyinfo = {
         id: uuid.v1(),
+        x: snakeX,
+        y: snakeY,
         color: Math.round(Math.random() * 6)
       };
       bodypoint.push(bodyinfo);
@@ -57,13 +62,19 @@ io.on('connection', function(socket){
         id: id,
         body: position
       }
+      AllSnakes.forEach(snake => {
+        if(snake.id === id){
+          snake.body = position;
+          return;
+        }
+      });
+      
       socket.broadcast.emit('move',JSON.stringify(snake_info));
     });
 
     socket.on('Drop',function(data) {
       
       var dropfood = JSON.parse(data);
-      console.log(dropfood);
       var returnfood = [];
       var bodyid = dropfood.id;
       for (var i = 0; i < 5; i++) {
@@ -87,6 +98,7 @@ io.on('connection', function(socket){
     });
 
     socket.on('disconnect', function(){
+        console.log('a user leave');
         io.emit('disconnect',id);
         AllSnakes.splice(AllSnakes.indexOf(NewSnake), 1);
     });
@@ -94,7 +106,7 @@ io.on('connection', function(socket){
     socket.on('afterEat', function(id, data) {
       var food_id = uuid.v1();
       socket.emit('own_add_point',data, food_id);
-      socket.broadcast.emit('other_add_point', id, data, food_id)
+      socket.broadcast.emit('other_add_point', id, data, food_id);
     });
   });
 });
