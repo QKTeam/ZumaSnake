@@ -12,8 +12,8 @@ var NewSnakeLength = 20;
 for(var i = 0; i < 233; i++) {
   var food_info = {};
   food_info.id = uuid.v1();
-  food_info.x = Math.random() * 1920;
-  food_info.y = Math.random() * 1080;
+  food_info.x = Math.random() * (5000 - 10 - 1920/2);
+  food_info.y = Math.random() * (3000 - 10 - 1080/2);
   food_info.intake = Math.round(Math.random() * 2) + 1;
   food_info.color = Math.round(Math.random() * 6);
   AllFood.push(food_info);
@@ -22,8 +22,8 @@ io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('join', function(data, x, y) {
     var id = uuid.v1();
-    var snakeX = Math.random() * 1920;
-    var snakeY = Math.random() * 1080;
+    var snakeX = Math.random() * (5000 - 10 - 1920/2);
+    var snakeY = Math.random() * (3000 - 10 - 1080/2);
     var bodypoint = [];
     for (var i = 0; i < NewSnakeLength; i++) {
       var bodyinfo = {

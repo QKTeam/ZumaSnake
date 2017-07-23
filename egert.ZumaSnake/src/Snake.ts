@@ -78,11 +78,11 @@ class Snake extends egret.Sprite{
 	}
 
 
-	public Move(e: egret.TouchEvent, interval: number) {
-		let mouseX = e.stageX;
-		let mouseY = e.stageY;
+	public Move(e: egret.TouchEvent, BGX, BGY, BW, BH, interval: number) {
+		let mouseX = e.stageX - BGX;
+		let mouseY = e.stageY - BGY;
 		let animate: egret.Tween;
-
+		
 		let headX = this.x + this.BodyList[0].x;
 		let headY = this.y + this.BodyList[0].y;
 		animate = egret.Tween.get(this.BodyList[0]);
@@ -91,17 +91,21 @@ class Snake extends egret.Sprite{
 		let VectorX = (mouseX - headX)/length;
 		let VectorY = (mouseY - headY)/length;
 
-		if (VectorX*length*VectorX*length+VectorY*length*VectorY*length<=this.speed*this.speed) return;
+		if (VectorX*length*VectorX*length+VectorY*length*VectorY*length<=this.speed*this.speed) return null;
 
 		let NextX = this.BodyList[0].x + this.speed * VectorX;
 		let NextY = this.BodyList[0].y + this.speed * VectorY;
-
+		let target;
+		target = {x: NextX, y: NextY};
+		if (NextX + this.x - this.radius <= 0 || NextX + this.x + this.radius >= BW || NextY + this.y - this.radius <= 0 || NextY + this.y + this.radius >= BH) return null;
 		animate.to({x: NextX, y: NextY}, interval);
 
 		for (var i = this.BodyList.length - 1; i >= 1; i--) {
 			animate = egret.Tween.get(this.BodyList[i]);
 			animate.to({x: this.BodyList[i -1].x, y: this.BodyList[i -1].y}, interval);
 		}
+		
+		return target;
 	}
 
 	public AfterEat (color_info, id) {
