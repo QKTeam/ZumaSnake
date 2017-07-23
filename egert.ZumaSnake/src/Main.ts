@@ -336,7 +336,7 @@ class Main extends egret.DisplayObjectContainer {
                     //返回插入位置
                     if(HitCheck.bool) {
                         let insertPos = j + HitCheck.nvalue;
-                        this.snakeInsert(insertPos, head, PassiveSnake);
+                        this.snakeInsert(insertPos, head, PassiveSnake,this.snake);
                         flag = 1;
                         break;
                     }
@@ -348,7 +348,7 @@ class Main extends egret.DisplayObjectContainer {
                     HitCheck = this.snakeTailHitCheck(head, Mbody, Lbody, PassiveSnake);
                     if(HitCheck.bool) {
                         let insertPos = j + HitCheck.nvalue;
-                        this.snakeInsert(j, head, PassiveSnake);
+                        this.snakeInsert(j, head, PassiveSnake,this.snake);
                         flag = 1;
                     }
                 }
@@ -360,12 +360,15 @@ class Main extends egret.DisplayObjectContainer {
     /**
      * 蛇碰撞插入
      */
-    private snakeInsert(pos: number, head: any, PassiveSnake: Snake) {
+    private snakeInsert(pos: number, head: any, PassiveSnake: Snake, ActSnake: Snake) {
         //pos:插入位置, head:本机蛇的头, PassiveSnake:被撞的蛇
+        
 
         PassiveSnake.BodyList.splice(pos, 0, head);
         this.snake.BodyList.splice(0, 1);
-        PassiveSnake.ZumaRemove(pos);
+        let infors =[];
+        infors = PassiveSnake.ZumaRemove(pos,ActSnake);
+        this.socket.emit('crash',JSON.stringify(infors))
     }
 
     /**
@@ -381,6 +384,7 @@ class Main extends egret.DisplayObjectContainer {
      */
     private snakeHitCheck(head, M, L, R, PassiveSnake: Snake) {
         //head:本机蛇头, M:中间节点, L:前一个节点, R:后一个节点, PassiveSnake:被撞的蛇
+
 
         let rsquare = 4 * (this.radius + this.SnakeLineWidth) * (this.radius + this.SnakeLineWidth);
         let Mdx = (head.x + this.snake.x - M.x - PassiveSnake.x);

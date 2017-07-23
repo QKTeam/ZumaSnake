@@ -196,8 +196,15 @@ class Snake extends egret.Sprite{
 	/**
      * 蛇身消除判断
      */
-    public ZumaRemove(pos: number) {
+    public ZumaRemove(pos: number,ActSnake) {
 		//插入位置
+
+        let infors = [];
+        let infor;
+        infor = new Object;
+        infor.act_id = ActSnake.id;
+        infor.pas_id = this.id;
+		infor.pos = pos;
 
         let count = 1;
         let stamp = 0;
@@ -207,13 +214,17 @@ class Snake extends egret.Sprite{
                 count++;
                 stamp = j; //标记最前端的节点
             }
-            else break;
+            else {
+				break;
+			}
         }
         for(var k = pos + 1; k < this.BodyList.length; k++) {
             if(this.BodyList[k].Color.Origin === FlagColor) {
                 count++;
             }
-            else break;
+            else {
+				break;
+			}
         }
         //检查剩余身体长度
         switch(this.BodyList.length - count)
@@ -227,6 +238,8 @@ class Snake extends egret.Sprite{
             count -= 2;
             break;
         }
+		infor.stamp = stamp;
+		infor.count = count;
         //消除三个以上相同颜色蛇身
         if(count > 2) {
             for(var j = stamp; j < stamp + count; j++) {
@@ -236,8 +249,11 @@ class Snake extends egret.Sprite{
             if(stamp > this.BodyList.length - 1) { //stamp超出蛇节点
                 stamp--;
             }
-            this.ZumaRemove(stamp);//递归消除
+            this.ZumaRemove(stamp,ActSnake);//递归消除
         }
-        else return;//递归结束
+        else {
+			infors.push(infor);
+			return infors;
+		}//递归结束
     }
 }
