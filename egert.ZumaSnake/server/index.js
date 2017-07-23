@@ -108,6 +108,9 @@ io.on('connection', function(socket){
       socket.emit('own_add_point',data, food_id);
       socket.broadcast.emit('other_add_point', id, data, food_id);
     });
+    socket.on('crash',function(data) {
+      socket.broadcast.emit('other_crash',data);
+    })
   });
 });
 
