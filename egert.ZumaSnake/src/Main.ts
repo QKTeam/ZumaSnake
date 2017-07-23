@@ -69,7 +69,7 @@ class Main extends egret.DisplayObjectContainer {
      */
     private createGameScene() {
         var location;
-        this.socket = io('http://192.168.1.107:2222/');
+        this.socket = io('http://192.168.1.178:2222/');
         let bg: egret.Shape = new egret.Shape();
         bg.graphics.beginFill(0xffccbc);
         bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageWidth);
