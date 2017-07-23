@@ -212,6 +212,9 @@ class Main extends egret.DisplayObjectContainer {
                 findsnake.AfterEat(color_info, food_id);
             }
         });
+        this.socket.on('other_crash',function(data) {
+            let crash_infor = JSON.parse(data);
+        });
 
 
         this.GetMoveTimer = new egret.Timer(80);
