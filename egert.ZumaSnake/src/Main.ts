@@ -361,6 +361,8 @@ class Main extends egret.DisplayObjectContainer {
      * 蛇碰撞插入
      */
     private snakeInsert(pos: number, head: any, PassiveSnake: Snake) {
+        //pos:插入位置, head:本机蛇的头, PassiveSnake:被撞的蛇
+
         PassiveSnake.BodyList.splice(pos, 0, head);
         this.snake.BodyList.splice(0, 1);
         PassiveSnake.ZumaRemove(pos);
@@ -377,10 +379,12 @@ class Main extends egret.DisplayObjectContainer {
     /**
      * 蛇身碰撞检查
      */
-    private snakeHitCheck(a, M, L, R, PassiveSnake: Snake) {
+    private snakeHitCheck(head, M, L, R, PassiveSnake: Snake) {
+        //head:本机蛇头, M:中间节点, L:前一个节点, R:后一个节点, PassiveSnake:被撞的蛇
+
         let rsquare = 4 * (this.radius + this.SnakeLineWidth) * (this.radius + this.SnakeLineWidth);
-        let Mdx = (a.x + this.snake.x - M.x - PassiveSnake.x);
-        let Mdy = (a.y + this.snake.y - M.y - PassiveSnake.y);
+        let Mdx = (head.x + this.snake.x - M.x - PassiveSnake.x);
+        let Mdy = (head.y + this.snake.y - M.y - PassiveSnake.y);
         let Mdist = Mdx*Mdx + Mdy*Mdy;
         let judge;
         judge = new Object();
@@ -389,10 +393,10 @@ class Main extends egret.DisplayObjectContainer {
         
         //碰撞触发
         if(Mdist <= rsquare) {
-            let Ldx = (a.x + this.snake.x - L.x - PassiveSnake.x);
-            let Ldy = (a.y + this.snake.y - L.y - PassiveSnake.y);
-            let Rdx = (a.x + this.snake.x - R.x - PassiveSnake.x);
-            let Rdy = (a.y + this.snake.y - R.y - PassiveSnake.y);
+            let Ldx = (head.x + this.snake.x - L.x - PassiveSnake.x);
+            let Ldy = (head.y + this.snake.y - L.y - PassiveSnake.y);
+            let Rdx = (head.x + this.snake.x - R.x - PassiveSnake.x);
+            let Rdy = (head.y + this.snake.y - R.y - PassiveSnake.y);
             let Ldist = Ldx*Ldx + Ldy*Ldy;
             let Rdist = Rdx*Rdx + Rdy*Rdy;
             if(Ldist < Rdist) {
@@ -413,10 +417,12 @@ class Main extends egret.DisplayObjectContainer {
     /**
      * 蛇尾碰撞检测
      */
-    private snakeTailHitCheck(a, M, L, PassiveSnake: Snake) {
+    private snakeTailHitCheck(head, M, L, PassiveSnake: Snake) {
+        //head:本机蛇头, M:中间节点, L:前一个节点, PassiveSnake:被撞的蛇
+
         let rsquare = 4 * (this.radius + this.SnakeLineWidth) * (this.radius + this.SnakeLineWidth);
-        let Mdx = (a.x + this.snake.x - M.x - PassiveSnake.x);
-        let Mdy = (a.y + this.snake.y - M.y - PassiveSnake.y);
+        let Mdx = (head.x + this.snake.x - M.x - PassiveSnake.x);
+        let Mdy = (head.y + this.snake.y - M.y - PassiveSnake.y);
         let Mdist = Mdx*Mdx + Mdy*Mdy;
         let judge;
         judge = new Object();
@@ -425,8 +431,8 @@ class Main extends egret.DisplayObjectContainer {
         
         //碰撞触发
         if(Mdist <= rsquare) {
-            let Ldx = (a.x + this.snake.x - L.x - PassiveSnake.x);
-            let Ldy = (a.y + this.snake.y - L.y - PassiveSnake.y);
+            let Ldx = (head.x + this.snake.x - L.x - PassiveSnake.x);
+            let Ldy = (head.y + this.snake.y - L.y - PassiveSnake.y);
             let Ldist = Ldx*Ldx + Ldy*Ldy;
 
             if(Ldist < 2*rsquare) {
