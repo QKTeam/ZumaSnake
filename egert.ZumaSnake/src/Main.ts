@@ -68,8 +68,7 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
-        var location;
-        this.socket = io('http://192.168.1.178:2222/');
+        this.socket = io('http://'+window.location.hostname+':2222/');
         let bg: egret.Shape = new egret.Shape();
         bg.graphics.beginFill(0xffccbc);
         bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageWidth);
@@ -310,87 +309,78 @@ class Main extends egret.DisplayObjectContainer {
             }
         }
         this.snake.Move(this.moveEvent, this.interval);
-        // //蛇碰撞
-        // for(var key in this.otherSnakes) {
-        //     let flag = 0;
-        //     for(var j = 0; j < this.otherSnakes[key].BodyList.length; j++) {
-        //         let head = this.snake.Head;
-        //         //蛇头
-        //         if(j = 0) {}
-        //         else if(j > 0 || j < this.otherSnakes[key].BodyList.length - 1) {
-        //             let Mbody = this.otherSnakes[key].BodyList[j];
-        //             let Lbody = this.otherSnakes[key].BodyList[j-1];
-        //             let Rbody = this.otherSnakes[key].BodyList[j+1];
-        //             //返回插入位置
-        //             if(this.snakeHitCheck(head, Mbody, Lbody, Rbody, key, j).bool) {
-        //                 let insertPos = j + this.snakeHitCheck(head, Mbody, Lbody, Rbody, key, j).nvalue;
-        //                 this.snakeInsert(insertPos, head, key);
-        //                 flag = 1;
-        //                 break;
-        //             }
-        //         }
-        //         //蛇尾
-        //         else if(j = this.otherSnakes[key].BodyList.length - 1) {
-        //             this.snakeInsert(j, head, key);
-        //             flag = 1;
-        //         }
-        //     }
-        //     if(flag === 1) break;
-        // }
+        
+        //蛇碰撞
+        for(var key in this.otherSnakes) {
+            let flag = 0;
+            let PassiveSnake: Snake;
+            PassiveSnake = this.otherSnakes[key];
+            console.log(233);
+            
+            for(var j = 0; j < PassiveSnake.BodyList.length; j++) {
+                console.log(PassiveSnake.BodyList.length);
+                
+                let head = this.snake.Head;
+                let HitCheck;
+                HitCheck = new Object();
+                //蛇头
+                if(j === 0) {
+                    continue;
+                }
+                //蛇身
+                else if(j < PassiveSnake.BodyList.length - 1) {
+                    let Mbody = PassiveSnake.BodyList[j];
+                    let Lbody = PassiveSnake.BodyList[j-1];
+                    let Rbody = PassiveSnake.BodyList[j+1];
+                    HitCheck = this.snakeHitCheck(head, Mbody, Lbody, Rbody, PassiveSnake);
+                    //返回插入位置
+                    if(HitCheck.bool) {
+                        let insertPos = j + HitCheck.nvalue;
+                        this.snakeInsert(insertPos, head, PassiveSnake);
+                        flag = 1;
+                        break;
+                    }
+                }
+                //蛇尾
+                else if(j === PassiveSnake.BodyList.length - 1) {
+                    let Mbody = PassiveSnake.BodyList[j];
+                    let Lbody = PassiveSnake.BodyList[j-1];
+                    HitCheck = this.snakeTailHitCheck(head, Mbody, Lbody, PassiveSnake);
+                    if(HitCheck.bool) {
+                        let insertPos = j + HitCheck.nvalue;
+                        this.snakeInsert(j, head, PassiveSnake);
+                        flag = 1;
+                    }
+                }
+            }
+            if(flag === 1) break;
+        }
     }
 
     /**
      * 蛇碰撞插入
      */
-    private snakeInsert(pos: number, head: any, key: any) {
-        this.otherSnakes[key].BodyList.splice(pos, 0, head);
+    private snakeInsert(pos: number, head: any, PassiveSnake: Snake) {
+        PassiveSnake.BodyList.splice(pos, 0, head);
         this.snake.BodyList.splice(0, 1);
-        this.ZumaRemove(pos, key);
+        PassiveSnake.ZumaRemove(pos);
     }
 
     /**
-     * 蛇身消除判断
+     * 蛇碰撞食物
      */
-    private ZumaRemove(pos: number, key) {
-        let count = 1;
-        let stamp = 0;
-        let FlagColor = this.otherSnakes[key].BodyList[pos].Color.Origin;
-        for(var j = pos - 1; j > 1; j--) {
-            if(this.otherSnakes[key].BodyList[j].Color.Origin === FlagColor) {
-                count++;
-                stamp = j;
-            }
-            else break;
-        }
-        for(var k = pos + 1; k < this.otherSnakes[key].BodyList.length; k++) {
-            if(this.otherSnakes[key].BodyList[k].Color.Origin === FlagColor) {
-                count++;
-            }
-            else break;
-        }
-        //消除三个以上相同颜色蛇身
-        if(count > 2) {
-            for(var j = stamp; j < stamp + count; j++) {
-                this.removeChild(this.otherSnakes[key].BodyList[j]);
-            }
-            this.otherSnakes[key].BodyList.splice(stamp, count);
-            this.ZumaRemove(stamp, key);//递归消除
-        }
-        else return;//递归结束
-    }
-
     private hit(a, b) {
         return (new egret.Rectangle(a.x + this.snake.x - this.radius, a.y + this.snake.y - this.radius, a.width, a.height))
             .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
     }
 
     /**
-     * 蛇碰撞检查
+     * 蛇身碰撞检查
      */
-    private snakeHitCheck(a, M, L, R, key, j) {
+    private snakeHitCheck(a, M, L, R, PassiveSnake: Snake) {
         let rsquare = 4 * (this.radius + this.SnakeLineWidth) * (this.radius + this.SnakeLineWidth);
-        let Mdx = (a.x + this.snake.x - M.x - this.otherSnakes[key].BodyList[j].x);
-        let Mdy = (a.y + this.snake.y - M.y - this.otherSnakes[key].BodyList[j].y);
+        let Mdx = (a.x + this.snake.x - M.x - PassiveSnake.x);
+        let Mdy = (a.y + this.snake.y - M.y - PassiveSnake.y);
         let Mdist = Mdx*Mdx + Mdy*Mdy;
         let judge;
         judge = new Object();
@@ -399,13 +389,47 @@ class Main extends egret.DisplayObjectContainer {
         
         //碰撞触发
         if(Mdist <= rsquare) {
-            let Ldx = (a.x + this.snake.x - L.x - this.otherSnakes[key].BodyList[j].x);
-            let Ldy = (a.y + this.snake.y - L.y - this.otherSnakes[key].BodyList[j].y);
-            let Rdx = (a.x + this.snake.x - R.x - this.otherSnakes[key].BodyList[j].x);
-            let Rdy = (a.y + this.snake.y - R.y - this.otherSnakes[key].BodyList[j].y);
+            let Ldx = (a.x + this.snake.x - L.x - PassiveSnake.x);
+            let Ldy = (a.y + this.snake.y - L.y - PassiveSnake.y);
+            let Rdx = (a.x + this.snake.x - R.x - PassiveSnake.x);
+            let Rdy = (a.y + this.snake.y - R.y - PassiveSnake.y);
             let Ldist = Ldx*Ldx + Ldy*Ldy;
             let Rdist = Rdx*Rdx + Rdy*Rdy;
             if(Ldist < Rdist) {
+                judge.bool = true;
+                judge.nvalue = 0;
+            }
+            else {
+                judge.bool = true;
+                judge.nvalue = 1;
+            }
+        }
+        else {
+            judge.bool = false;
+        }
+        return judge;
+    }
+
+    /**
+     * 蛇尾碰撞检测
+     */
+    private snakeTailHitCheck(a, M, L, PassiveSnake: Snake) {
+        let rsquare = 4 * (this.radius + this.SnakeLineWidth) * (this.radius + this.SnakeLineWidth);
+        let Mdx = (a.x + this.snake.x - M.x - PassiveSnake.x);
+        let Mdy = (a.y + this.snake.y - M.y - PassiveSnake.y);
+        let Mdist = Mdx*Mdx + Mdy*Mdy;
+        let judge;
+        judge = new Object();
+        judge.bool = false;
+        judge.nvalue = 0;
+        
+        //碰撞触发
+        if(Mdist <= rsquare) {
+            let Ldx = (a.x + this.snake.x - L.x - PassiveSnake.x);
+            let Ldy = (a.y + this.snake.y - L.y - PassiveSnake.y);
+            let Ldist = Ldx*Ldx + Ldy*Ldy;
+
+            if(Ldist < 2*rsquare) {
                 judge.bool = true;
                 judge.nvalue = 0;
             }
