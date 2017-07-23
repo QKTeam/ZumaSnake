@@ -192,4 +192,50 @@ class Snake extends egret.Sprite{
 			animate.to({scaleX: 0.01, scaleY: 0.01}, 300);
 		});
 	}
+
+	/**
+     * 蛇身消除判断
+     */
+    public ZumaRemove(pos: number) {
+        let count = 1;
+        let stamp = 0;
+        let FlagColor = this.BodyList[pos].Color.Origin;
+        for(var j = pos - 1; j > 0; j--) {
+            if(this.BodyList[j].Color.Origin === FlagColor) {
+                count++;
+                stamp = j;
+            }
+            else break;
+        }
+        for(var k = pos + 1; k < this.BodyList.length; k++) {
+            if(this.BodyList[k].Color.Origin === FlagColor) {
+                count++;
+            }
+            else break;
+        }
+        //检查剩余身体长度
+        switch(this.BodyList.length - count)
+        {
+        case 2:
+            stamp++;
+            count--;
+            break;
+        case 1:
+            stamp += 2;
+            count -= 2;
+            break;
+        }
+        //消除三个以上相同颜色蛇身
+        if(count > 2) {
+            for(var j = stamp; j < stamp + count; j++) {
+                this.removeChild(this.BodyList[j]);
+            }
+            this.BodyList.splice(stamp, count);
+            if(stamp > this.BodyList.length - 1) {
+                stamp--;
+            }
+            this.ZumaRemove(stamp);//递归消除
+        }
+        else return;//递归结束
+    }
 }
