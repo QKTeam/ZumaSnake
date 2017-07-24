@@ -108,8 +108,20 @@ io.on('connection', function(socket){
       socket.emit('own_add_point',data, food_id);
       socket.broadcast.emit('other_add_point', id, data, food_id);
     });
-    socket.on('crash',function(data) {
-      socket.broadcast.emit('other_crash',data);
+
+    socket.on('crash',function(data,PasSnake,ActSnake) {
+      socket.broadcast.emit('other_crash',data,PasSnake,ActSnake);
+      for(var i = 0;i<PasInf.food.length;i++) {
+        var food = {};
+        food.x = PasInf.food[i].x;
+        food.y = PasInf.food[i].y;
+        food.intake = PasInf.food[i].intake;
+        food.color = this.colornum;
+        food.id = uuid.v1();
+        returnfood.push(food);
+        AllFood.push(food);
+      }
+      socket.emit('CrashToFood',JSON.stringify(returnfood))
     });
     socket.on('EditSelf',function(data) {
       socket.broadcast.emit('EditOther',data)

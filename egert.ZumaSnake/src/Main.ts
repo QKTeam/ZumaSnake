@@ -212,21 +212,20 @@ class Main extends egret.DisplayObjectContainer {
                 findsnake.AfterEat(color_info, food_id);
             }
         });
-        this.socket.on('other_crash',function(data) {           
-            let crash_infor = JSON.parse(data);
+        this.socket.on('other_crash',function(data,PasSnake,ActSnake) {           
+            let PasInf = JSON.parse(data);
+            let passnake = JSON.parse(PasSnake);
+            let actsnake = JSON.parse(ActSnake);
             
-            if(stage.snake.id === crash_infor.passnake.id) {
-                stage.snake === crash_infor.passnake;
-                stage.otherSnakes[crash_infor.actsnake.id] = crash_infor.actsnake;
+            if(stage.snake.id === PasInf.id) {
+                stage.snake === JSON.parse(PasSnake);
+                stage.otherSnakes[actsnake.id] = JSON.parse(ActSnake);
                 
             }
             else {
-                stage.otherSnakes[crash_infor.actsnake.id] = crash_infor.actsnake;
-                stage.otherSnakes[crash_infor.passnake.id] = crash_infor.passanke;
-            }
-
-
-            
+                stage.otherSnakes[passnake.id] = JSON.parse(PasSnake);
+                stage.otherSnakes[actsnake.id] = JSON.parse(ActSnake);
+            }     
         });
         this.socket.on('EditOther',function(data) {
             let othersnake = JSON.parse(data);
@@ -386,12 +385,18 @@ class Main extends egret.DisplayObjectContainer {
 
         PassiveSnake.BodyList.splice(pos, 0, head);
         this.snake.BodyList.splice(0, 1);
-        let infor = PassiveSnake.ZumaRemove(pos,ActSnake,PassiveSnake);
-        let PasInf = this.snake.Edit(infor);
-        this.otherSnakes[PasInf.passnake.id] = PasInf.passnake;
+        let mmm;
+        mmm = new Object;
+        mmm = JSON.stringify(PassiveSnake.ZumaRemove(pos,ActSnake));
+        let infor;
+        infor = new Object;
+        infor = JSON.parse(mmm);
+        this.otherSnakes[infor.id] = PassiveSnake;
+        console.log(infor.id,ActSnake.id);
+        
         // this.snake = PasInf.actsnake; 方法里还没写
         
-        this.socket.emit('crash',JSON.stringify(PasInf));
+        this.socket.emit('crash',JSON.stringify(infor),JSON.stringify(PassiveSnake),JSON.stringify(ActSnake));
         
     }
 
