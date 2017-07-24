@@ -5,7 +5,7 @@ var io = require('socket.io')(http, {
   pingInterval: 100,
 });
 var uuid = require('node-uuid');
-
+var code = 1;
 var AllSnakes = [];
 var AllFood = [];
 var NewSnakeLength = 20;
@@ -38,8 +38,10 @@ io.on('connection', function(socket){
       id: id,
       x: snakeX,
       y: snakeY,
-      body: bodypoint
+      body: bodypoint,
+      code: '#Player'+code
     }
+    code++;
     socket.emit('create',JSON.stringify(NewSnake));
     socket.emit('allfood', JSON.stringify(AllFood));
     socket.emit('other_snake',JSON.stringify(AllSnakes));

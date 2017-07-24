@@ -51,12 +51,17 @@ class Main extends egret.DisplayObjectContainer {
     private BackGroundWidth: number;
     private BcakGroundHeight: number;
     private LittleMap: LittleMap;
+    private RankList: RankList;
+    private RankListWidth: number;
+    private RankListHeight: number;
 
     public constructor() {
         super();
         this.interval = 100 ;
         this.BackGroundWidth = 5000;
         this.BcakGroundHeight = 3000;
+        this.RankListWidth = 300;
+        this.RankListHeight = 400;
         this.food = [];
         this.otherSnakes = {};
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.createGameScene, this);
@@ -105,6 +110,11 @@ class Main extends egret.DisplayObjectContainer {
             stage.LittleMap.x = stage.stage.stageWidth - 10;
             stage.LittleMap.y = 10;
             stage.setChildIndex(stage.LittleMap, -999);
+            stage.RankList = new RankList(stage.RankListWidth, stage.RankListHeight);
+            stage.addChild(stage.RankList);
+            stage.RankList.x = 10;
+            stage.RankList.y = 10;
+            stage.setChildIndex(stage.RankList, -999);
         });
         
         function GiveSnakeToStage(SnakeInfo) {
@@ -263,6 +273,24 @@ class Main extends egret.DisplayObjectContainer {
             }
             
             this.LittleMap.addSnakeOrModify(info, 80);
+
+            let RankInfo= [
+                {
+                    playercode: this.snake.playercode,
+                    length: this.snake.BodyList.length,
+                    mine: true
+                }
+            ]
+            for (var key in this.otherSnakes) {
+                let singleInfo ;
+                singleInfo = {
+                    playercode: this.otherSnakes[key].playercode,
+                    length: this.otherSnakes[key].BodyList.length,
+                    mine: false
+                };
+                RankInfo.push(singleInfo);
+            }
+            this.RankList.Manager(RankInfo);
         }
     }
     private randomFood() {

@@ -17,6 +17,8 @@ class Snake extends egret.Sprite{
 	public bool:boolean;
 
 	public id: String;
+
+	public playercode: string
 	
 	public constructor() {
 		super();
@@ -34,6 +36,7 @@ class Snake extends egret.Sprite{
 	 */
 	public Create(bodypointInfo) {
 		this.id = bodypointInfo.id;
+		this.playercode = bodypointInfo.code;
 		let headcolor: Color = new Color();
 		headcolor.Origin = headcolor.OriginColor[bodypointInfo.body[0].color];
 		headcolor.Bright = headcolor.BrightColor[bodypointInfo.body[0].color];
@@ -128,6 +131,7 @@ class Snake extends egret.Sprite{
 
 	public CreatOther(info: any) {
 		this.id = info.id;
+		this.playercode = info.code;
 		this.Head = new BodyPoint();
 		let headcolor: Color = new Color();
 		headcolor.Origin = headcolor.OriginColor[info.body[0].color];
