@@ -48,8 +48,8 @@ io.on('connection', function(socket){
     AllSnakes.push(NewSnake);
     socket.broadcast.emit('other_join',JSON.stringify(NewSnake));
     
-    socket.on('eatfood',function(data) {
-      socket.broadcast.emit('other_eat', data, id);
+    socket.on('eatfood',function(data, colorcount) {
+      socket.broadcast.emit('other_eat', data, id, colorcount);
       for(var i = 0; i < AllFood.length; i++) {
         if (AllFood[i].id === data){
           AllFood.splice(i,1);

@@ -141,9 +141,10 @@ class Main extends egret.DisplayObjectContainer {
                 stage.food.push(newFood);
             });
         });
-        this.socket.on('other_eat', function(id, snake_id) {
+        this.socket.on('other_eat', function(id, snake_id, colorcount) {
             let food_info = stage.GetFoodByID(id);
             if (food_info != null){
+                stage.otherSnakes[snake_id].ColorCount = JSON.parse(colorcount);
                 let ToX = stage.otherSnakes[snake_id].x + stage.otherSnakes[snake_id].Head.x;
                 let ToY = stage.otherSnakes[snake_id].y + stage.otherSnakes[snake_id].Head.y;
                 let animate = egret.Tween.get(food_info[1]);
@@ -287,19 +288,28 @@ class Main extends egret.DisplayObjectContainer {
             }
             
             this.LittleMap.addSnakeOrModify(info, 80);
-
+            let score = 0;
+            for (var key in this.snake.ColorCount) {
+                score += this.snake.ColorCount[key];
+            }
             let RankInfo= [
                 {
                     playercode: this.snake.playercode,
-                    length: this.snake.BodyList.length,
+                    length: this.snake.BodyList.length * 15 + score,
                     mine: true
                 }
-            ]
+            ];
             for (var key in this.otherSnakes) {
+                score = 0;
+                let colorcount = this.otherSnakes[key].ColorCount;
+                
+                for (var other_key in colorcount) {
+                    score += colorcount[other_key];
+                }
                 let singleInfo ;
                 singleInfo = {
                     playercode: this.otherSnakes[key].playercode,
-                    length: this.otherSnakes[key].BodyList.length,
+                    length: this.otherSnakes[key].BodyList.length * 15 + score,
                     mine: false
                 };
                 RankInfo.push(singleInfo);
@@ -353,7 +363,6 @@ class Main extends egret.DisplayObjectContainer {
         }, this, 100);
         let removeid: string;
         removeid = this.food[i].id;
-        this.socket.emit('eatfood',removeid);
         if(this.snake.ColorCount[ncolor.Origin]) {
             this.snake.ColorCount[ncolor.Origin] += this.food[i].intake;
         }
@@ -369,6 +378,7 @@ class Main extends egret.DisplayObjectContainer {
             this.snake.ColorCount[ncolor.Origin] -= 15;
         }
         this.food.splice(i,1);
+        this.socket.emit('eatfood',removeid, JSON.stringify(this.snake.ColorCount));
     }
 
     private onTimer() {
