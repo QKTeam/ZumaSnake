@@ -111,6 +111,9 @@ io.on('connection', function(socket){
     socket.on('crash',function(data) {
       socket.broadcast.emit('other_crash',data);
     });
+    socket.on('EditSelf',function(data) {
+      socket.broadcast.emit('EditOther',data)
+    });
   });
 });
 

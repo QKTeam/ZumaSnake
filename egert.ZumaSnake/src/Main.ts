@@ -82,7 +82,7 @@ class Main extends egret.DisplayObjectContainer {
         this.socket.on('create', function(NewSnake) {
             var SnakeInfo = JSON.parse(NewSnake);
             GiveSnakeToStage(SnakeInfo);
-            console.log('join',stage.otherSnakes);
+            // console.log('join',stage.otherSnakes);
         });
         
         function GiveSnakeToStage(SnakeInfo) {
@@ -115,7 +115,7 @@ class Main extends egret.DisplayObjectContainer {
             stage.otherSnakes[snake_info.id] = Osnake;
             stage.addChild(Osnake);
             stage.setChildIndex(Osnake,1);
-            console.log('other join',stage.otherSnakes);         
+            // console.log('other join',stage.otherSnakes);         
         });
 
         this.socket.on('allfood', function(data) {
@@ -145,7 +145,7 @@ class Main extends egret.DisplayObjectContainer {
                 stage.addChild(Osnake);
                 stage.setChildIndex(Osnake,1);
             });
-            console.log('other snake',stage.otherSnakes);
+            // console.log('other snake',stage.otherSnakes);
             
         });
 
@@ -212,8 +212,25 @@ class Main extends egret.DisplayObjectContainer {
                 findsnake.AfterEat(color_info, food_id);
             }
         });
-        this.socket.on('other_crash',function(data) {
+        this.socket.on('other_crash',function(data) {           
             let crash_infor = JSON.parse(data);
+            
+            if(stage.snake.id === crash_infor.passnake.id) {
+                stage.snake === crash_infor.passnake;
+                stage.otherSnakes[crash_infor.actsnake.id] = crash_infor.actsnake;
+                
+            }
+            else {
+                stage.otherSnakes[crash_infor.actsnake.id] = crash_infor.actsnake;
+                stage.otherSnakes[crash_infor.passnake.id] = crash_infor.passanke;
+            }
+
+
+            
+        });
+        this.socket.on('EditOther',function(data) {
+            let othersnake = JSON.parse(data);
+            stage.otherSnakes[othersnake.id] = othersnake;
         });
 
 
@@ -318,10 +335,10 @@ class Main extends egret.DisplayObjectContainer {
             let flag = 0;
             let PassiveSnake: Snake;
             PassiveSnake = this.otherSnakes[key];
-            console.log(233);
+            // console.log(233);
             
             for(var j = 0; j < PassiveSnake.BodyList.length; j++) {
-                console.log(PassiveSnake.BodyList.length);
+                // console.log(PassiveSnake.BodyList.length);
                 
                 let head = this.snake.Head;
                 let HitCheck;
@@ -336,7 +353,7 @@ class Main extends egret.DisplayObjectContainer {
                     let Lbody = PassiveSnake.BodyList[j-1];
                     let Rbody = PassiveSnake.BodyList[j+1];
                     HitCheck = this.snakeHitCheck(head, Mbody, Lbody, Rbody, PassiveSnake);
-                    //返回插入位置
+                    //返回插入位置 HitCheck.bool 表示能否插入过别的蛇
                     if(HitCheck.bool) {
                         let insertPos = j + HitCheck.nvalue;
                         this.snakeInsert(insertPos, head, PassiveSnake,this.snake);
@@ -364,14 +381,18 @@ class Main extends egret.DisplayObjectContainer {
      * 蛇碰撞插入
      */
     private snakeInsert(pos: number, head: any, PassiveSnake: Snake, ActSnake: Snake) {
-        //pos:插入位置, head:本机蛇的头, PassiveSnake:被撞的蛇
+        //pos:插入位置(插入后在pas里的下标), head:本机蛇的头, PassiveSnake:被撞的蛇
         
 
         PassiveSnake.BodyList.splice(pos, 0, head);
         this.snake.BodyList.splice(0, 1);
-        let infors =[];
-        infors = PassiveSnake.ZumaRemove(pos,ActSnake);
-        this.socket.emit('crash',JSON.stringify(infors))
+        let infor = PassiveSnake.ZumaRemove(pos,ActSnake,PassiveSnake);
+        let PasInf = this.snake.Edit(infor);
+        this.otherSnakes[PasInf.passnake.id] = PasInf.passnake;
+        // this.snake = PasInf.actsnake; 方法里还没写
+        
+        this.socket.emit('crash',JSON.stringify(PasInf));
+        
     }
 
     /**
