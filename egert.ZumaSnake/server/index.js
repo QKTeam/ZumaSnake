@@ -12,8 +12,8 @@ var NewSnakeLength = 20;
 for(var i = 0; i < 233; i++) {
   var food_info = {};
   food_info.id = uuid.v1();
-  food_info.x = Math.random() * (5000 - 10 - 1920/2);
-  food_info.y = Math.random() * (3000 - 10 - 1080/2);
+  food_info.x = Math.random() * (5000 - 10) + 10;
+  food_info.y = Math.random() * (3000 - 10) + 10;
   food_info.intake = Math.round(Math.random() * 2) + 1;
   food_info.color = Math.round(Math.random() * 6);
   AllFood.push(food_info);

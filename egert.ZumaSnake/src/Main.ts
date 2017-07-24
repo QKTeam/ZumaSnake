@@ -54,7 +54,7 @@ class Main extends egret.DisplayObjectContainer {
 
     public constructor() {
         super();
-        this.interval = 120 ;
+        this.interval = 100 ;
         this.BackGroundWidth = 5000;
         this.BcakGroundHeight = 3000;
         this.food = [];
@@ -74,7 +74,7 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
-
+        this.stage.scaleMode = egret.StageScaleMode.FIXED_WIDE;
         this.BackGround = new egret.Sprite();
         this.BackGround.width = this.BackGroundWidth;
         this.BackGround.height = this.BcakGroundHeight;
@@ -194,6 +194,7 @@ class Main extends egret.DisplayObjectContainer {
                 }
             }
             addfood.forEach(food => {
+                if (!(food.x <= 0 || food.y <= 0 || food.x >= stage.BackGround.width || food.y >= stage.BackGround.height))
                 stage.BodytoFood(food.fromX, food.fromY, food.x, food.y, food.intake, food.color, food.id);
             });
         });
@@ -337,36 +338,10 @@ class Main extends egret.DisplayObjectContainer {
         
         if (target !== null) {
             let animateBG = egret.Tween.get(this.BackGround);
-            if (!(this.BackGround.x  >= 0 || this.BackGround.y  >= 0)){
-                console.log('move');
-                
                 animateBG.to({
                     x: this.BackGround.x - (target.x - headX),
                     y: this.BackGround.y - (target.y - headY)
                 }, this.interval);
-            }
-            else {
-                console.log('stop');
-                
-                let isCenterX = this.BackGround.x >= - (this.snake.Head.x + this.snake.x) + this.stage.stageWidth/2
-                let isCenterY = this.BackGround.y >= - (this.snake.Head.y + this.snake.y) + this.stage.stageHeight/2
-                if (isCenterX === true && isCenterY === false) {
-                    animateBG.to({
-                        x: this.BackGround.x - (target.x - headX)
-                    }, this.interval);
-                }
-                else if (isCenterX === true && isCenterY === true) {
-                    animateBG.to({
-                        x: this.BackGround.x - (target.x - headX),
-                        y: this.BackGround.y - (target.y - headY)
-                    }, this.interval);                  
-                }
-                else if (isCenterX === false && isCenterY === true) {
-                    animateBG.to({
-                        y: this.BackGround.y - (target.y - headY)
-                    }, this.interval);                    
-                }
-            }
         }
         
         // //蛇碰撞
@@ -484,8 +459,8 @@ class Main extends egret.DisplayObjectContainer {
     private startTouchAccelerate() {
         if (this.snake !== undefined){
             if(this.snake.BodyList.length > 2){
-                this.timer.delay = 70;
-                this.interval = 70;
+                this.timer.delay = 50;
+                this.interval = 50;
                 this.startAccelerate();
             }
         }
@@ -493,8 +468,8 @@ class Main extends egret.DisplayObjectContainer {
 
     private endTouchAccelerate() {
         if (this.snake !== undefined){
-            this.timer.delay = 150;
-            this.interval = 150;
+            this.timer.delay = 100;
+            this.interval = 100;
             this.stopAccelerate();
         }
     }
