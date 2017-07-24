@@ -9,7 +9,7 @@ var code = 1;
 var AllSnakes = [];
 var AllFood = [];
 var NewSnakeLength = 20;
-for(var i = 0; i < 233; i++) {
+for(var i = 0; i < 300; i++) {
   var food_info = {};
   food_info.id = uuid.v1();
   food_info.x = Math.random() * (5000 - 10) + 10;
@@ -49,12 +49,26 @@ io.on('connection', function(socket){
     socket.broadcast.emit('other_join',JSON.stringify(NewSnake));
     
     socket.on('eatfood',function(data) {
-      socket.broadcast.emit('other_eat', data);
+      socket.broadcast.emit('other_eat', data, id);
       for(var i = 0; i < AllFood.length; i++) {
         if (AllFood[i].id === data){
           AllFood.splice(i,1);
           break;
         }
+      }
+      if (AllFood.length <= 30) {
+        var addfoodinfo = [];
+        for(var i = 0; i <= 30-AllFood.length; i++) {
+          var food_info = {};
+          food_info.id = uuid.v1();
+          food_info.x = Math.random() * (5000 - 10) + 10;
+          food_info.y = Math.random() * (3000 - 10) + 10;
+          food_info.intake = Math.round(Math.random() * 2) + 1;
+          food_info.color = Math.round(Math.random() * 6);
+          addfoodinfo.push(food_info);
+          AllFood.push(food_info);
+        }
+        io.emit('add_food_for_num', JSON.stringify(addfoodinfo));
       }
     });
 

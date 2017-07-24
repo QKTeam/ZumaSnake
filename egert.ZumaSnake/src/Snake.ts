@@ -61,7 +61,6 @@ class Snake extends egret.Sprite{
 		this.setChildIndex(this.Head, -999);
 
 		for (var i = 1; i < bodypointInfo.body.length; i++) {
-			console.log('data-length',bodypointInfo.body.length)
 			let bodycolor: Color = new Color();
 			bodycolor.Origin = headcolor.OriginColor[bodypointInfo.body[i].color];
 			bodycolor.Bright = headcolor.BrightColor[bodypointInfo.body[i].color];

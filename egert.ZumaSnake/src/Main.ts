@@ -79,7 +79,7 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
-        this.stage.scaleMode = egret.StageScaleMode.FIXED_WIDE;
+        this.stage.scaleMode = egret.StageScaleMode.FIXED_WIDTH;
         this.BackGround = new egret.Sprite();
         this.BackGround.width = this.BackGroundWidth;
         this.BackGround.height = this.BcakGroundHeight;
@@ -128,8 +128,7 @@ class Main extends egret.DisplayObjectContainer {
             Osnake.CreatOther(snake_info);
             stage.otherSnakes[snake_info.id] = Osnake;
             stage.BackGround.addChild(Osnake);
-            stage.BackGround.setChildIndex(Osnake,1);
-            console.log('other join',stage.otherSnakes);         
+            stage.BackGround.setChildIndex(Osnake,1);      
         });
 
         this.socket.on('allfood', function(data) {
@@ -142,10 +141,16 @@ class Main extends egret.DisplayObjectContainer {
                 stage.food.push(newFood);
             });
         });
-        this.socket.on('other_eat', function(id) {
+        this.socket.on('other_eat', function(id, snake_id) {
             let food_info = stage.GetFoodByID(id);
             if (food_info != null){
-                stage.BackGround.removeChild(food_info[1]);
+                let ToX = stage.otherSnakes[snake_id].x + stage.otherSnakes[snake_id].Head.x;
+                let ToY = stage.otherSnakes[snake_id].y + stage.otherSnakes[snake_id].Head.y;
+                let animate = egret.Tween.get(food_info[1]);
+                animate.to({x: ToX, y: ToY}, 100);
+                egret.setTimeout(function () {
+                    stage.BackGround.removeChild(food_info[1]);
+                }, this, 100)
                 stage.food.splice(food_info[0], 1);
             }
         });
@@ -158,15 +163,13 @@ class Main extends egret.DisplayObjectContainer {
                 stage.otherSnakes[snake.id] = Osnake;
                 stage.BackGround.addChild(Osnake);
                 stage.BackGround.setChildIndex(Osnake,1);
-            });
-            console.log('other snake',stage.otherSnakes);
-            
+            });  
         });
 
         this.socket.on('disconnect', function(id) {
             if(stage.otherSnakes[id] !== undefined){
                 stage.otherSnakes[id].RemoveSnake();
-                stage.LittleMap.RemovePoint(id);
+                stage.LittleMap.RemovePoint(id, 80);
                 var delay = setTimeout(function() {
                     stage.BackGround.removeChild(stage.otherSnakes[id]);
                     delete stage.otherSnakes[id];
@@ -235,6 +238,17 @@ class Main extends egret.DisplayObjectContainer {
             if (findsnake !== undefined) {
                 findsnake.AfterEat(color_info, food_id);
             }
+        });
+
+        this.socket.on('add_food_for_num', function(data){
+            let infos = JSON.parse(data);
+            infos.forEach(food => {
+                let newFood: Food = new Food();
+                newFood.CreateFood(stage.radius, food.x, food.y, food.color, food.id, food.intake);
+                stage.BackGround.addChild(newFood);
+                stage.BackGround.setChildIndex(newFood, 1);
+                stage.food.push(newFood);
+            });
         });
 
 
@@ -328,7 +342,15 @@ class Main extends egret.DisplayObjectContainer {
 
     private onEatFood(i) {
         let ncolor = this.food[i].color;
-        this.BackGround.removeChild(this.food[i]);
+        let foodRemove = this.food[i];
+        let animate = egret.Tween.get(this.food[i]);
+        animate.to({
+            x: this.snake.x + this.snake.Head.x,
+            y: this.snake.y + this.snake.Head.y
+        }, 100);
+        egret.setTimeout(function() {
+             this.BackGround.removeChild(foodRemove);
+        }, this, 100);
         let removeid: string;
         removeid = this.food[i].id;
         this.socket.emit('eatfood',removeid);
@@ -444,8 +466,14 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private hit(a, b) {
-        return (new egret.Rectangle(a.x + this.snake.x - this.radius, a.y + this.snake.y - this.radius, a.width, a.height))
-            .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
+        if ((a.x + this.snake.x - b.x)*(a.x + this.snake.x - b.x) + (a.y + this.snake.y - b.y)*(a.y + this.snake.y - b.y) < 10 * this.radius * this.radius){
+            return true;
+        }
+        else {
+            return false;
+        }
+        // return (new egret.Rectangle(a.x + this.snake.x - this.radius, a.y + this.snake.y - this.radius, a.width, a.height))
+        //     .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
     }
 
     /**

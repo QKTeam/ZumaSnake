@@ -75,9 +75,14 @@ class LittleMap extends egret.Sprite{
 			}
 	}
 
-	public RemovePoint (id) {
+	public RemovePoint (id, interval) {
 		if (this.snake_info[id] !== undefined) {
-			this.removeChild(this.snake_info[id].object);
+			let remove = this.snake_info[id].object;
+			let animate = egret.Tween.get(remove);
+			animate.to({scaleX: 0.01, scaleY: 0.01}, interval);
+			egret.setTimeout(function() {
+				this.removeChild(remove);
+			}, this, interval);
 			delete this.snake_info[id];
 		}
 	}
