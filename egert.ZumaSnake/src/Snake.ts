@@ -221,8 +221,8 @@ class Snake extends egret.Sprite{
 				break;
 			}
         }
-		let stampQ = pos;
-		let stampH = pos;
+		let stampQ = pos - 1;
+		let stampH = infor.stampH;
 		let qqq = JSON.stringify(this.Check(pos,stampQ,stampH));
 		let ans;
 		ans = new Object;
@@ -245,8 +245,9 @@ class Snake extends egret.Sprite{
 		}
     }
 	private Check(pos,stampQ,stampH) {
-        let FlagColor = this.BodyList[pos].Color.Origin;
+        let FlagColor = this.BodyList[pos-1].Color.Origin;
 		let count = 0;
+		let count_k =0;
 		for(var j = stampQ - 1; j > 0; j--) {
             if(this.BodyList[j].Color.Origin === FlagColor) {
                 stampQ = j; //标记满足颜色和插入的一节相同的的节点的下标
@@ -266,7 +267,7 @@ class Snake extends egret.Sprite{
 				break;
 			}
         }
-		if(count<3){
+		if(count<3 || count_k===0){
 			let ans;
 			ans = new Object;
 			ans.stampQ = stampQ;
@@ -292,8 +293,9 @@ class Snake extends egret.Sprite{
 	private Rebirth(ActSnake: Snake) {
 		let actsnake = new Snake;
 		actsnake.id = ActSnake.id;
-		for(var i = 0;i<ActSnake.BodyList.length;i++)
+		for(var i = 0;i<ActSnake.BodyList.length;i++) {
 			
-
+		}
+			
 	}
 }
