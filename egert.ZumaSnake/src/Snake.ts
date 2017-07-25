@@ -193,24 +193,41 @@ class Snake extends egret.Sprite{
 		});
 	}
 
+
+	public addSinglePoint(pos: number, Dcount: number, x: number, y: number, Bcolor: number, Ocolor: number, isHead: boolean) {
+		let point: BodyPoint = new BodyPoint();
+		let pointColor = new Color();
+		console.log(Bcolor, Ocolor);
+		
+		pointColor.Bright = Bcolor;
+		pointColor.Origin = Ocolor;
+		point.Create(this.radius, pointColor, isHead);
+		point.x = x - this.x;
+		point.y = y - this.y;
+		this.BodyList.splice(pos, 0, point);
+		this.addChild(point);
+		this.setChildIndex(this.BodyList[pos],0);
+		return point;
+	}
+
 	/**
-     * 蛇身消除判断
+     * 蛇身消除判断v0.0
      */
-    public ZumaRemove(pos: number,ActSnake:Snake,PasSnake:Snake) {
-		//插入位置
+    // public ZumaRemove(pos: number,ActSnake:Snake,PasSnake:Snake) {
+	// 	//插入位置
 
-        let infor;
-        infor = new Object;
-        infor.ActSnake = ActSnake;
-        infor.PasSnake = PasSnake;
-		infor.pos = pos;
+    //     let infor;
+    //     infor = new Object;
+    //     infor.ActSnake = ActSnake;
+    //     infor.PasSnake = PasSnake;
+	// 	infor.pos = pos;
 
-        let stampQ = pos;
-		let stampH = pos;
-		let ans = this.Check(pos,stampQ,stampH,PasSnake);
-		infor.stampQ = ans.stampQ;
-		infor.stampH = ans.stampH;
-		return infor;
+    //     let stampQ = pos;
+	// 	let stampH = pos;
+	// 	let ans = this.Check(pos,stampQ,stampH,PasSnake);
+	// 	infor.stampQ = ans.stampQ;
+	// 	infor.stampH = ans.stampH;
+	// 	return infor;
 
         // for(var j = pos - 1; j > 0; j--) {
 		// 	let FlagColor = PasSnake[pos].Color.Origin;
@@ -266,47 +283,47 @@ class Snake extends egret.Sprite{
 					
 		// 	return infors;
 		// }//递归结束
-    }
-	private Check(pos,stampQ,stampH,PasSnake) {
-        let FlagColor = PasSnake.BodyList[pos].Color.Origin;
-		let count = 0;
-		for(var j = stampQ - 1; j > 0; j--) {
-            if(PasSnake.BodyList[j].Color.Origin === FlagColor) {
-                stampQ = j; //标记满足颜色和插入的一节相同的的节点的下标
-				pos = stampQ - 1;
-				count++;
-            }
-            else {
-				break;
-			}
-        }
-        for(var k = stampH + 1; k < PasSnake.BodyList.length; k++) {
-            if(PasSnake.BodyList[k].Color.Origin === FlagColor) {
-				stampH = k;
-				count++;
-            }
-            else {
-				break;
-			}
-        }
-		if(count<3){
-			let ans;
-			ans = new Object;
-			ans.stampQ = stampQ;
-			if(PasSnake.BodyList[stampH].Color.Origin === PasSnake.BodyList[j].Color.Origin)
-				ans.stampH = stampH - 1;
-			else
-				ans.stampH = stampH;
-			return ans;
-		}
-		else
-			this.Check(pos,stampQ,stampH,PasSnake)
-		// if(PasSnake[pos].Color.Origin === PasSnake[k+1].Color.Origin&&pos>1&&k<PasSnake.BodyList.length)
-		// 	this.Check(pos,stampQ,stampH,PasSnake);
-		// else
+    // }
+	// private Check(pos,stampQ,stampH,PasSnake) {
+    //     let FlagColor = PasSnake.BodyList[pos].Color.Origin;
+	// 	let count = 0;
+	// 	for(var j = stampQ - 1; j > 0; j--) {
+    //         if(PasSnake.BodyList[j].Color.Origin === FlagColor) {
+    //             stampQ = j; //标记满足颜色和插入的一节相同的的节点的下标
+	// 			pos = stampQ - 1;
+	// 			count++;
+    //         }
+    //         else {
+	// 			break;
+	// 		}
+    //     }
+    //     for(var k = stampH + 1; k < PasSnake.BodyList.length; k++) {
+    //         if(PasSnake.BodyList[k].Color.Origin === FlagColor) {
+	// 			stampH = k;
+	// 			count++;
+    //         }
+    //         else {
+	// 			break;
+	// 		}
+    //     }
+	// 	if(count<3){
+	// 		let ans;
+	// 		ans = new Object;
+	// 		ans.stampQ = stampQ;
+	// 		if(PasSnake.BodyList[stampH].Color.Origin === PasSnake.BodyList[j].Color.Origin)
+	// 			ans.stampH = stampH - 1;
+	// 		else
+	// 			ans.stampH = stampH;
+	// 		return ans;
+	// 	}
+	// 	else
+	// 		this.Check(pos,stampQ,stampH,PasSnake)
+	// 	// if(PasSnake[pos].Color.Origin === PasSnake[k+1].Color.Origin&&pos>1&&k<PasSnake.BodyList.length)
+	// 	// 	this.Check(pos,stampQ,stampH,PasSnake);
+	// 	// else
 
 
-	}
+	// }
 	//各种处理
 	public Edit(infor:any) {
 		let PasInf;
@@ -332,7 +349,7 @@ class Snake extends egret.Sprite{
 		let foods = [];
 		for(var i =0;i<body.BodyList.length;i++){
 			food = new Food;
-			food.GetBigFood(body.BodyList[i].x+body.x;body.BodyList[i].y+body.y;this.radius;body.BodyList[i].Color);
+			food.GetBigFood(body.BodyList[i].x+body.x,body.BodyList[i].y+body.y,this.radius,body.BodyList[i].Color);
 			foods.push(food);
 		}
 		return foods;
@@ -378,4 +395,51 @@ class Snake extends egret.Sprite{
 
 	//被撞后变成食物
 
+	/**
+	 * 蛇身消除判断
+	 */
+	public ZumaRemove(pos, size) {
+		console.log(pos);
+		
+		let infors;
+		infors = new Object();
+		let head = pos;
+		let last = pos;
+		let FlagColor;
+		FlagColor = this.BodyList[pos].Color.Origin;
+		console.log(head, last);
+		while (this.BodyList[head].Color.Origin === FlagColor && head) head--;
+		if(head || this.BodyList[head].Color.Origin !== FlagColor) head++;
+		while(this.BodyList[last].Color.Origin === FlagColor && last < size) last++;
+		// console.log(this.BodyList.length);
+		console.log(head, last);
+		
+		if(last - head > 2) {
+            for(var i = head; i< last; i++) {
+                this.removeChild(this.BodyList[i]);
+            }
+			this.BodyList.splice(head, last - head);
+			infors.size = size + head - last;
+			infors.pos = head;
+			infors.last = last;
+			infors.judge = 1;
+			return infors;
+		}
+		else {
+			infors.pos = head;
+			infors.last = last;
+			infors.judge = 0;
+			return infors;
+		}
+	}
+
+	public actInsert() {
+		this.removeChild(this.BodyList[0]);
+		this.BodyList.splice(0, 1);
+	}
+
+	public pasInsert(pos, head) {
+		this.BodyList.splice(pos, 0, head);
+		this.addChild(this.BodyList[pos]);
+	}
 }

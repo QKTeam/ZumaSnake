@@ -233,6 +233,35 @@ class Main extends egret.DisplayObjectContainer {
             stage.otherSnakes[othersnake.id] = othersnake;
         });
 
+        this.socket.on('insert_pas',function(data) {
+            let findsnakePas: Snake = new Snake();
+            let findsnakeAct: Snake = new Snake();
+            let insertData = JSON.parse(data);
+            let head: BodyPoint = new BodyPoint();
+            findsnakeAct = stage.otherSnakes[insertData.actid];
+            head = findsnakeAct.Head;
+            if (stage.snake.id === insertData.pasid) {
+                stage.snake.BodyList.splice(insertData.pos, 0, head);
+                stage.snake.addChild(head);
+            }
+            else {
+                findsnakePas = stage.otherSnakes[insertData.pasid];
+                if(findsnakePas !== undefined) {
+                    findsnakePas.BodyList.splice(insertData.pos, 0, head);
+                    stage.snake.addChild(head);
+                }
+            }
+        });
+
+        this.socket.on('insert_act',function(id) {
+            let findsnake: Snake = new Snake();
+            findsnake = stage.otherSnakes[id];
+            
+            if (findsnake !== undefined) {
+                findsnake.actInsert();
+            }
+        });
+
 
         this.GetMoveTimer = new egret.Timer(80);
         this.GetMoveTimer.addEventListener(egret.TimerEvent.TIMER, this.GetOtherMove, this);
@@ -338,7 +367,6 @@ class Main extends egret.DisplayObjectContainer {
             // console.log(233);
             
             for(var j = 0; j < PassiveSnake.BodyList.length; j++) {
-                // console.log(PassiveSnake.BodyList.length);
                 
                 let head = this.snake.Head;
                 let HitCheck;
@@ -355,6 +383,7 @@ class Main extends egret.DisplayObjectContainer {
                     HitCheck = this.snakeHitCheck(head, Mbody, Lbody, Rbody, PassiveSnake);
                     //返回插入位置 HitCheck.bool 表示能否插入过别的蛇
                     if(HitCheck.bool) {
+                        this.snake.bool = false;
                         let insertPos = j + HitCheck.nvalue;
                         this.snakeInsert(insertPos, head, PassiveSnake,this.snake);
                         flag = 1;
@@ -382,16 +411,53 @@ class Main extends egret.DisplayObjectContainer {
      */
     private snakeInsert(pos: number, head: any, PassiveSnake: Snake, ActSnake: Snake) {
         //pos:插入位置(插入后在pas里的下标), head:本机蛇的头, PassiveSnake:被撞的蛇
+
+        head.graphics.clear();
+        head.graphics.lineStyle(4,head.Color.Bright);
+        head.graphics.beginFill(head.Color.Origin);
+        head.graphics.drawCircle(0,0,this.radius);
+        head.graphics.endFill(); 
+
+        let insertData;
+        insertData = new Object();
+        insertData.actid = this.snake.id;
+        insertData.pasid = PassiveSnake.id;
+        insertData.pos = pos;
+        insertData.headid = head.id;
+        
+        this.snake.removeChild(this.snake.BodyList[0]);
+        PassiveSnake.BodyList.splice(pos, 0, head);
+        PassiveSnake.addChild(PassiveSnake.BodyList[pos]);
+        this.snake.BodyList.splice(0, 1);
+        this.socket.emit('insert', JSON.stringify(insertData));
         
 
-        PassiveSnake.BodyList.splice(pos, 0, head);
-        this.snake.BodyList.splice(0, 1);
-        let infor = PassiveSnake.ZumaRemove(pos,ActSnake,PassiveSnake);
-        let PasInf = this.snake.Edit(infor);
-        this.otherSnakes[PasInf.passnake.id] = PasInf.passnake;
+        let removeData = [];
+        let data;
+        data = new Object();
+        data.id = PassiveSnake.id;
+        let infors;
+        infors = new Object();
+        infors.size = PassiveSnake.BodyList.length;
+        infors.pos = pos;
+        infors.judge = 1;
+        while(infors.judge && infors.size) {
+            infors = PassiveSnake.ZumaRemove(infors.pos, infors.size);
+            data.head = infors.pos;
+            data.last = infors.last;
+            removeData.push(data);
+        }
+        // if(infors.size) {
+
+        // }
+        // else {
+        //     //死亡
+        // }
+        // let PasInf = this.snake.Edit(infor);
+        // this.otherSnakes[PasInf.passnake.id] = PasInf.passnake;
         // this.snake = PasInf.actsnake; 方法里还没写
         
-        this.socket.emit('crash',JSON.stringify(PasInf));
+        // this.socket.emit('crash',JSON.stringify(PasInf));
         
     }
 
@@ -420,7 +486,7 @@ class Main extends egret.DisplayObjectContainer {
         judge.nvalue = 0;
         
         //碰撞触发
-        if(Mdist <= rsquare) {
+        if(Mdist <= rsquare && this.snake.bool) {
             let Ldx = (head.x + this.snake.x - L.x - PassiveSnake.x);
             let Ldy = (head.y + this.snake.y - L.y - PassiveSnake.y);
             let Rdx = (head.x + this.snake.x - R.x - PassiveSnake.x);
@@ -458,7 +524,7 @@ class Main extends egret.DisplayObjectContainer {
         judge.nvalue = 0;
         
         //碰撞触发
-        if(Mdist <= rsquare) {
+        if(Mdist <= rsquare && this.snake.bool) {
             let Ldx = (head.x + this.snake.x - L.x - PassiveSnake.x);
             let Ldy = (head.y + this.snake.y - L.y - PassiveSnake.y);
             let Ldist = Ldx*Ldx + Ldy*Ldy;
