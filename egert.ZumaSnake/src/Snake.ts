@@ -205,8 +205,8 @@ class Snake extends egret.Sprite{
 		point.x = x - this.x;
 		point.y = y - this.y;
 		this.BodyList.splice(pos, 0, point);
-		this.addChild(point);
-		this.setChildIndex(this.BodyList[pos],0);
+		let index = this.getChildIndex(this.BodyList[pos - 1]);  
+        this.addChildAt(this.BodyList[pos], index);
 		return point;
 	}
 
@@ -282,15 +282,5 @@ class Snake extends egret.Sprite{
 			infors.judge = 0;
 			return infors;
 		}
-	}
-
-	public actInsert() {
-		this.removeChild(this.BodyList[0]);
-		this.BodyList.splice(0, 1);
-	}
-
-	public pasInsert(pos, head) {
-		this.BodyList.splice(pos, 0, head);
-		this.addChild(this.BodyList[pos]);
 	}
 }

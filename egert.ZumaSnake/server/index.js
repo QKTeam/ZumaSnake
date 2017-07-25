@@ -130,8 +130,8 @@ io.on('connection', function(socket){
     socket.on('insert', function(data) {
       var insertData = JSON.parse(data);
       var Actid = insertData.actid;
-      socket.broadcast.emit('insert_act', Actid);
       socket.broadcast.emit('insert_pas', data);
+      // socket.broadcast.emit('insert_act', Actid);
     });
   });
 });
