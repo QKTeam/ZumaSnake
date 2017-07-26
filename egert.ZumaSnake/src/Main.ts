@@ -252,27 +252,55 @@ class Main extends egret.DisplayObjectContainer {
             let findsnakeAct: Snake = new Snake();
             let insertData = JSON.parse(data);
             let head: BodyPoint = new BodyPoint();
+            let pasid = insertData.pasid;
             findsnakeAct = stage.otherSnakes[insertData.actid];
+            
             head = findsnakeAct.Head;
-            if (stage.snake.id === insertData.pasid) {
-                stage.snake.BodyList.splice(insertData.pos, 0, head);
-                stage.snake.addChild(head);
+            if (stage.snake.id === pasid) {
+                findsnakeAct.removeChild(head);
+                stage.snake.addSinglePoint(insertData.pos, 0, insertData.x, insertData.y, insertData.insertBcolor, insertData.insertOcolor, false);
+                findsnakeAct.BodyList.splice(0, 1);
             }
             else {
-                findsnakePas = stage.otherSnakes[insertData.pasid];
+                findsnakePas = stage.otherSnakes[pasid];
                 if(findsnakePas !== undefined) {
-                    findsnakePas.BodyList.splice(insertData.pos, 0, head);
-                    stage.snake.addChild(head);
+                    findsnakeAct.removeChild(head);
+                    findsnakePas.addSinglePoint(insertData.pos, 0, insertData.x, insertData.y, insertData.Bcolor, insertData.Ocolor, false);
+                    findsnakeAct.BodyList.splice(0, 1);
                 }
             }
         });
 
-        this.socket.on('insert_act',function(id) {
-            let findsnake: Snake = new Snake();
-            findsnake = stage.otherSnakes[id];
+        // this.socket.on('insert_act',function(id) {
+        //     let findsnake: Snake = new Snake();
+        //     findsnake = stage.otherSnakes[id];
             
-            if (findsnake !== undefined) {
-                findsnake.actInsert();
+        //     if (findsnake !== undefined) {
+        //         findsnake.actInsert();
+        //     }
+        // });
+
+        this.socket.on('other_ZumaRemove', function(removeinfor) {
+            // {id, datum[]{size, head, last, judge}}
+            let removeData;
+            removeData = new Object();
+            removeData = JSON.parse(removeinfor);
+            let id = removeData.id;
+            let dataLength = removeData.datum.length;
+            if(stage.snake.id === id) {
+                for(var i = 0; i < dataLength - 1; i++) {
+                    stage.snake.otherZumaRemove(removeData.datum[i].head, removeData.datum[i].last);
+
+                    
+                }
+            }
+            else {
+                let findsnake = stage.otherSnakes[id];
+                if(findsnake !== undefined) {
+                    for(var i = 0; i < dataLength - 1; i++) {
+                        findsnake.otherZumaRemove(removeData.datum[i].head, removeData.datum[i].last);
+                    }
+                }
             }
         });
 
@@ -414,8 +442,9 @@ class Main extends egret.DisplayObjectContainer {
                     let Lbody = PassiveSnake.BodyList[j-1];
                     HitCheck = this.snakeTailHitCheck(head, Mbody, Lbody, PassiveSnake);
                     if(HitCheck.bool) {
+                        this.snake.bool = false;
                         let insertPos = j + HitCheck.nvalue;
-                        this.snakeInsert(j, head, PassiveSnake,this.snake);
+                        this.snakeInsert(j, head, PassiveSnake, this.snake);
                         flag = 1;
                     }
                 }
@@ -429,44 +458,64 @@ class Main extends egret.DisplayObjectContainer {
      */
     private snakeInsert(pos: number, head: any, PassiveSnake: Snake, ActSnake: Snake) {
         //pos:插入位置(插入后在pas里的下标), head:本机蛇的头, PassiveSnake:被撞的蛇
+         
+        let x1 = head.x + this.snake.x;
+        let y1 = head.y + this.snake.y;
 
-        head.graphics.clear();
-        head.graphics.lineStyle(4,head.Color.Bright);
-        head.graphics.beginFill(head.Color.Origin);
-        head.graphics.drawCircle(0,0,this.radius);
-        head.graphics.endFill(); 
-
-        let insertData;
+        console.log(x1, y1);
+        
+        let insertData;;
         insertData = new Object();
         insertData.actid = this.snake.id;
         insertData.pasid = PassiveSnake.id;
         insertData.pos = pos;
-        insertData.headid = head.id;
-        
+        insertData.insertx = x1;
+        insertData.inserty = y1;
+        insertData.insertBcolor = this.snake.Head.Color.Bright;
+        insertData.insertOcolor = this.snake.Head.Color.Origin;
+        for(var i = 0; i < this.snake.Head.Color.OriginColor.length; i++) {
+            if(this.snake.Head.Color.OriginColor[i] === this.snake.Head.Color.Origin) {
+                insertData.colormatch = i;
+                break;
+            }
+        }
+
+        this.snake.bodypointModify(x1, y1);
         this.snake.removeChild(this.snake.BodyList[0]);
-        PassiveSnake.BodyList.splice(pos, 0, head);
-        PassiveSnake.addChild(PassiveSnake.BodyList[pos]);
+        PassiveSnake.addSinglePoint(pos, 0, insertData.insertx, insertData.inserty, insertData.insertBcolor, insertData.insertOcolor, false);
+        // if(pos < PassiveSnake.BodyList.length - 1) {
+		// 	// PassiveSnake.BodyList.splice(pos, 0, point);
+		// 	let index = PassiveSnake.getChildIndex(PassiveSnake.BodyList[pos - 1]);  
+        // 	PassiveSnake.addChildAt(this.snake.Head, index);
+		// }
+		// else {
+		// 	PassiveSnake.BodyList.push(this.snake.Head);
+		// 	PassiveSnake.addChild(this.snake.Head);
+		// 	PassiveSnake.setChildIndex(PassiveSnake.BodyList[PassiveSnake.BodyList.length - 1],0);
+		// }
         this.snake.BodyList.splice(0, 1);
-
-        this.socket.emit('insert', JSON.stringify(insertData));
         
+        this.socket.emit('insert', JSON.stringify(insertData));
 
-        let removeData = [];
+        let removeData;
+        removeData = new Object();
         let data;
         data = new Object();
-        data.id = PassiveSnake.id;
+        let datum = [];
+        removeData.id = PassiveSnake.id;
         let infors;
         infors = new Object();
         infors.size = PassiveSnake.BodyList.length;
-        infors.pos = pos;
+        infors.head = pos;
         infors.judge = 1;
         while(infors.judge && infors.size) {
-            infors = PassiveSnake.ZumaRemove(infors.pos, infors.size);
-            data.head = infors.pos;
-            data.last = infors.last;
-            removeData.push(data);
+            infors = PassiveSnake.ZumaRemove(infors.head, infors.size);
+            datum.push(infors);
         }
+        removeData.datum = datum;
         this.Rebirth(this.snake);
+        this.socket.emit('ZumaRemove', JSON.stringify(removeData));
+        console.log(JSON.stringify(removeData));
         
     }
 
