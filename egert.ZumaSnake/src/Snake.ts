@@ -148,8 +148,8 @@ class Snake extends egret.Sprite{
 			bodycolor.Origin = bodycolor.OriginColor[info.body[i].color];
 			bodycolor.Bright = bodycolor.BrightColor[info.body[i].color];
 			bodypoint.Create(this.radius, bodycolor, false);
-			bodypoint.x = info.x;
-			bodypoint.y = info.y;
+			bodypoint.x = info.body[i].x;
+			bodypoint.y = info.body[i].y;
 			bodypoint.id = info.body[i].id;
 			this.BodyList.push(bodypoint);
 			bodypoint.scaleX = 0.01;
@@ -202,17 +202,19 @@ class Snake extends egret.Sprite{
 		pointColor.Bright = Bcolor;
 		pointColor.Origin = Ocolor;
 		point.Create(this.radius, pointColor, isHead);
-		point.x = x - this.x;
-		point.y = y - this.y;
-		this.BodyList.splice(pos, 0, point);
-		let index = this.getChildIndex(this.BodyList[pos - 1]);  
-        this.addChildAt(this.BodyList[pos], index);
-		return point;
+		point.x = x - 3*this.x;
+		point.y = y - 3*this.y;
+		if(pos < this.BodyList.length - 1) {
+			this.BodyList.splice(pos, 0, point);
+			let index = this.getChildIndex(this.BodyList[pos - 1]);  
+        	this.addChildAt(point, index);
+		}
+		else {
+			this.BodyList.push(point);
+			this.addChild(point);
+			this.setChildIndex(this.BodyList[this.BodyList.length - 1],0);
+		}
 	}
-
-	/**
-     * 蛇身消除判断v0.0
-     */
 
 	//各种处理
 	public Edit(infor:any) {
@@ -258,29 +260,50 @@ class Snake extends egret.Sprite{
 		let last = pos;
 		let FlagColor;
 		FlagColor = this.BodyList[pos].Color.Origin;
-		console.log(head, last);
 		while (this.BodyList[head].Color.Origin === FlagColor && head) head--;
 		if(head || this.BodyList[head].Color.Origin !== FlagColor) head++;
-		while(this.BodyList[last].Color.Origin === FlagColor && last < size) last++;
+		while(this.BodyList[last].Color.Origin === FlagColor && last < size) {
+			last++;
+			if(last === size) break;
+		}
 		// console.log(this.BodyList.length);
 		console.log(head, last);
 		
 		if(last - head > 2) {
-            for(var i = head; i< last; i++) {
+            for(var i = head; i < last; i++) {
                 this.removeChild(this.BodyList[i]);
             }
 			this.BodyList.splice(head, last - head);
 			infors.size = size + head - last;
-			infors.pos = head;
+			infors.head = head;
 			infors.last = last;
 			infors.judge = 1;
 			return infors;
 		}
 		else {
-			infors.pos = head;
+			infors.head = head;
 			infors.last = last;
 			infors.judge = 0;
 			return infors;
 		}
+	}
+
+	public otherZumaRemove(head, last) {
+		if(last - head > 2) {
+			for(var i = head; i < last; i++) {
+				this.removeChild(this.BodyList[i]);
+			}
+			this.BodyList.splice(head, last - head);
+		}
+	}
+
+	public bodypointModify(x: number, y: number) {
+		this.Head.bodypoint.graphics.clear();
+        this.Head.bodypoint.graphics.lineStyle(4,this.Head.Color.Bright);
+        this.Head.bodypoint.graphics.beginFill(this.Head.Color.Origin);
+        this.Head.bodypoint.graphics.drawCircle(0,0,this.radius);
+        this.Head.bodypoint.graphics.endFill(); 
+		this.Head.x = x;
+		this.Head.y = y;
 	}
 }
