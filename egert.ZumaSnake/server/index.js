@@ -58,8 +58,8 @@ io.on('connection', function(socket){
 
     socket.on('rebirth',function(id,length) {
       var id = id;
-      var newX = 500; //Math.random() * 1920;
-      var newY = 500; //Math.random() * 1080;
+      var newX = Math.random() * 1920;
+      var newY = Math.random() * 1080;
       var newColor = [];
       for(var i =  0;i<length;i++) {
         var color = Math.round(Math.random() * 6);

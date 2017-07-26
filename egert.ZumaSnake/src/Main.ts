@@ -401,7 +401,7 @@ class Main extends egret.DisplayObjectContainer {
                     HitCheck = this.snakeHitCheck(head, Mbody, Lbody, Rbody, PassiveSnake);
                     //返回插入位置 HitCheck.bool 表示能否插入过别的蛇
                     if(HitCheck.bool) {
-                        this.snake.bool = false;
+                        // this.snake.bool = false;
                         let insertPos = j + HitCheck.nvalue;
                         this.snakeInsert(insertPos, head, PassiveSnake,this.snake);
                         flag = 1;
