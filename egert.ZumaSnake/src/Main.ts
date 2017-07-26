@@ -49,7 +49,7 @@ class Main extends egret.DisplayObjectContainer {
     private SnakeLineWidth = 4;
     public BackGround: egret.Sprite;
     private BackGroundWidth: number;
-    private BcakGroundHeight: number;
+    private BackGroundHeight: number;
     private LittleMap: LittleMap;
     private RankList: RankList;
     private RankListWidth: number;
@@ -59,7 +59,7 @@ class Main extends egret.DisplayObjectContainer {
         super();
         this.interval = 100 ;
         this.BackGroundWidth = 5000;
-        this.BcakGroundHeight = 3000;
+        this.BackGroundHeight = 3000;
         this.RankListWidth = 300;
         this.RankListHeight = 400;
         this.food = [];
@@ -82,7 +82,7 @@ class Main extends egret.DisplayObjectContainer {
         this.stage.scaleMode = egret.StageScaleMode.FIXED_WIDTH;
         this.BackGround = new egret.Sprite();
         this.BackGround.width = this.BackGroundWidth;
-        this.BackGround.height = this.BcakGroundHeight;
+        this.BackGround.height = this.BackGroundHeight;
 
         
 
@@ -107,7 +107,7 @@ class Main extends egret.DisplayObjectContainer {
             stage.LittleMap = new LittleMap(stage.BackGround.width, stage.BackGround.height, 5, 0.1);
             stage.addChild(stage.LittleMap);
             stage.LittleMap.anchorOffsetX = stage.LittleMap.width;
-            stage.LittleMap.x = stage.stage.stageWidth - 10;
+            stage.LittleMap.x = stage.stage.stageWidth - 40;
             stage.LittleMap.y = 10;
             stage.setChildIndex(stage.LittleMap, -999);
             stage.RankList = new RankList(stage.RankListWidth, stage.RankListHeight);
@@ -394,7 +394,7 @@ class Main extends egret.DisplayObjectContainer {
         let headY = this.snake.Head.y;
         let BGX = this.BackGround.x;
         let BGY = this.BackGround.y;
-        let target = this.snake.Move(this.moveEvent, BGX, BGY, this.BackGroundWidth, this.BcakGroundHeight, this.interval);
+        let target = this.snake.Move(this.moveEvent, BGX, BGY, this.BackGroundWidth, this.BackGroundHeight, this.interval);
         
         if (target !== null) {
             let animateBG = egret.Tween.get(this.BackGround);

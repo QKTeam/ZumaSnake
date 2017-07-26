@@ -18,7 +18,9 @@ class Snake extends egret.Sprite{
 
 	public id: String;
 
-	public playercode: string
+	public playercode: string;
+
+	public SnakeName: egret.TextField;
 	
 	public constructor() {
 		super();
@@ -43,11 +45,21 @@ class Snake extends egret.Sprite{
 		this.Head = new BodyPoint();
 		this.Head.Create(this.radius, headcolor, true);
 		this.bool = true;
+		this.SnakeName = new egret.TextField();
+		this.SnakeName.size = 15;
+		this.SnakeName.text = this.playercode;
+		this.SnakeName.textColor = 0x000000;
+		this.SnakeName.height = 15;
+		this.SnakeName.textAlign = egret.HorizontalAlign.LEFT;
+
 
 		//设置坐标
 		this.Head.x = this.radius;
 		this.Head.y = this.radius;
 		this.Head.id = bodypointInfo.body[0].id;
+		this.SnakeName.anchorOffsetX = this.SnakeName.width/2;
+		this.SnakeName.x = this.Head.x;
+		this.SnakeName.y = this.Head.y - 30;
 		this.x = bodypointInfo.x;
 		this.y = bodypointInfo.y;
 
@@ -59,6 +71,8 @@ class Snake extends egret.Sprite{
 		this.addChild(this.Head);
 		animate.to({scaleX: 1.0, scaleY: 1.0},300);
 		this.setChildIndex(this.Head, -999);
+		this.addChild(this.SnakeName);
+		this.setChildIndex(this.SnakeName, -999);
 
 		for (var i = 1; i < bodypointInfo.body.length; i++) {
 			let bodycolor: Color = new Color();
@@ -102,6 +116,9 @@ class Snake extends egret.Sprite{
 		if (NextX + this.x - this.radius <= 0 || NextX + this.x + this.radius >= BW || NextY + this.y - this.radius <= 0 || NextY + this.y + this.radius >= BH) return null;
 		animate.to({x: NextX, y: NextY}, interval);
 
+		let NameAnimate = egret.Tween.get(this.SnakeName);
+		NameAnimate.to({x: NextX, y: NextY - 30}, interval);
+
 		for (var i = this.BodyList.length - 1; i >= 1; i--) {
 			animate = egret.Tween.get(this.BodyList[i]);
 			animate.to({x: this.BodyList[i -1].x, y: this.BodyList[i -1].y}, interval);
@@ -139,6 +156,17 @@ class Snake extends egret.Sprite{
 		this.Head.x = this.radius;
 		this.Head.y = this.radius;
 		this.Head.id = info.body[0].id;
+		this.SnakeName = new egret.TextField();
+		this.SnakeName.size = 15;
+		this.SnakeName.text = this.playercode;
+		this.SnakeName.textColor = 0x000000;
+		this.SnakeName.height = 15;
+		this.SnakeName.textAlign = egret.HorizontalAlign.LEFT;
+		this.SnakeName.anchorOffsetX = this.SnakeName.width/2;
+		this.SnakeName.x = this.Head.x;
+		this.SnakeName.y = this.Head.y - 30;
+		this.addChild(this.SnakeName);
+		this.setChildIndex(this.SnakeName, -999);
 		this.x = info.x;
 		this.y = info.y;
 		this.BodyList.push(this.Head);
@@ -155,8 +183,8 @@ class Snake extends egret.Sprite{
 			bodycolor.Origin = bodycolor.OriginColor[info.body[i].color];
 			bodycolor.Bright = bodycolor.BrightColor[info.body[i].color];
 			bodypoint.Create(this.radius, bodycolor, false);
-			bodypoint.x = info.x;
-			bodypoint.y = info.y;
+			bodypoint.x = info.body[i].x;
+			bodypoint.y = info.body[i].y;
 			bodypoint.id = info.body[i].id;
 			this.BodyList.push(bodypoint);
 			bodypoint.scaleX = 0.01;
@@ -173,6 +201,8 @@ class Snake extends egret.Sprite{
 		for(var i = 0; i < Math.min(info.body.length, this.BodyList.length); i++) {
 			let animate: egret.Tween = egret.Tween.get(this.BodyList[i]);
 			animate.to({x: info.body[i].x, y: info.body[i].y},interval);
+			let NameAnimate = egret.Tween.get(this.SnakeName);
+			NameAnimate.to({x: info.body[0].x, y: info.body[0].y - 30}, interval);
 		}
 	}
 

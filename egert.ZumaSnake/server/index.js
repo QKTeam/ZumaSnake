@@ -9,7 +9,7 @@ var code = 1;
 var AllSnakes = [];
 var AllFood = [];
 var NewSnakeLength = 20;
-for(var i = 0; i < 300; i++) {
+for(var i = 0; i < 666; i++) {
   var food_info = {};
   food_info.id = uuid.v1();
   food_info.x = Math.random() * (5000 - 10) + 10;
@@ -56,9 +56,9 @@ io.on('connection', function(socket){
           break;
         }
       }
-      if (AllFood.length <= 30) {
+      if (AllFood.length <= 233) {
         var addfoodinfo = [];
-        for(var i = 0; i <= 30-AllFood.length; i++) {
+        for(var i = 0; i <= 233-AllFood.length; i++) {
           var food_info = {};
           food_info.id = uuid.v1();
           food_info.x = Math.random() * (5000 - 10) + 10;
