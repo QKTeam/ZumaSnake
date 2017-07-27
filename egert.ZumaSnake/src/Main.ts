@@ -163,8 +163,12 @@ class Main extends egret.DisplayObjectContainer {
         });
 
         this.socket.on('rebirth',function(id,newX,newY,newColor) {
-            if(stage.snake.id === id)
-                stage.ReDraw(id,newX,newY,newColor);
+            if(stage.snake.id === id){
+                stage.snake.removeChildren();
+                stage.removeChild(stage.snake);
+                stage.snake.ReDraw(200,200,newColor);
+                stage.addChild(stage.snake);
+            }
             else{
                 stage.removeChild(stage.otherSnakes[id]);
                 stage.otherSnakes[id].ReDrawOthers(newX,newY,newColor);
@@ -392,7 +396,6 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private onTimer() {
-        console.log(this.snake.Head.x);
         
         // if(this.food.length<this.foodadd)
         //     this.addFood();
@@ -411,7 +414,7 @@ class Main extends egret.DisplayObjectContainer {
             let PassiveSnake: Snake;
             PassiveSnake = this.otherSnakes[key];
             
-            this.snake.Move(this.moveEvent, this.interval);
+            
             // console.log(233);
             
             for(var j = 0; j < PassiveSnake.BodyList.length; j++) {
@@ -454,7 +457,7 @@ class Main extends egret.DisplayObjectContainer {
             if(flag === 1) break;
         }
 
-        
+        this.snake.Move(this.moveEvent, this.interval);
     }
 
     /**
@@ -523,17 +526,8 @@ class Main extends egret.DisplayObjectContainer {
         removeData.datum = datum;
         // this.Rebirth(this.snake);
 
-        this.snake.removeChildren();
-        this.removeChild(this.snake);
         
-        let colornum = [];
-        for (var i = 0; i < this.snake.BodyList.length; i++){
-            var color = Math.round(Math.random() * 6);
-            colornum.push(color);
-        }
-        this.snake.ReDraw(200,200,colornum);
-        this.addChild(this.snake);
-        
+        this.socket.emit('rebirth',this.snake.id,this.snake.BodyList.length);
         this.socket.emit('ZumaRemove', JSON.stringify(removeData));
     }
 
