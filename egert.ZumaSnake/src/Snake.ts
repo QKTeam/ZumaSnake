@@ -193,21 +193,25 @@ class Snake extends egret.Sprite{
 		});
 	}
 
-
-	public addSinglePoint(pos: number, Dcount: number, x: number, y: number, Bcolor: number, Ocolor: number, isHead: boolean) {
+	/**
+	 * 添加新节点
+	 * id: 插入球的id, pos: 插入位置, x: 插入球x坐标, y: 插入球y坐标, Bcolor:插入球浅色, Ocolor: 插入球深色
+	 */
+	public addSinglePoint(id: string, pos: number, x: number, y: number, Bcolor: number, Ocolor: number) {
 		let point: BodyPoint = new BodyPoint();
 		let pointColor = new Color();
-		console.log(Bcolor, Ocolor);
-		
 		pointColor.Bright = Bcolor;
 		pointColor.Origin = Ocolor;
-		point.Create(this.radius, pointColor, isHead);
-		point.x = x - 3*this.x;
-		point.y = y - 3*this.y;
+		point.Create(this.radius, pointColor, false);
+		point.x = x - this.x;
+		point.y = y - this.y;
+		point.id = id;
+		
 		if(pos < this.BodyList.length - 1) {
 			this.BodyList.splice(pos, 0, point);
-			let index = this.getChildIndex(this.BodyList[pos - 1]);  
+			let index = this.getChildIndex(this.BodyList[pos - 1]);
         	this.addChildAt(point, index);
+			return point;
 		}
 		else {
 			this.BodyList.push(point);
@@ -250,6 +254,7 @@ class Snake extends egret.Sprite{
 
 	/**
 	 * 蛇身消除判断
+	 * pos: 插入位置（检测起点）, size: 蛇身长度
 	 */
 	public ZumaRemove(pos, size) {
 		console.log(pos);
@@ -266,8 +271,6 @@ class Snake extends egret.Sprite{
 			last++;
 			if(last === size) break;
 		}
-		// console.log(this.BodyList.length);
-		console.log(head, last);
 		
 		if(last - head > 2) {
             for(var i = head; i < last; i++) {
@@ -305,5 +308,17 @@ class Snake extends egret.Sprite{
         this.Head.bodypoint.graphics.endFill(); 
 		this.Head.x = x;
 		this.Head.y = y;
+	}
+
+	/**
+	 * 蛇头改变
+	 */
+	public headChange() {
+		this.Head = this.BodyList[0];
+		this.Head.bodypoint.graphics.clear();
+        this.Head.bodypoint.graphics.lineStyle(4,0x000000);
+        this.Head.bodypoint.graphics.beginFill(this.Head.Color.Origin);
+        this.Head.bodypoint.graphics.drawCircle(0,0,this.radius);
+        this.Head.bodypoint.graphics.endFill(); 
 	}
 }

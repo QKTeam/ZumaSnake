@@ -129,34 +129,34 @@ io.on('connection', function(socket){
 
     socket.on('insert', function(data) {
       //{actid, pasid, pos, insertx, inserty, insertBcolor, insertOcolor}
-      var insertData = JSON.parse(data);
-      var actid = insertData.actid;
-      var pasid = insertData.pasid;
-      var pos = insertData.pos;
-      var judge = 0;
-      var bodyinfo = {
-        id: uuid.v1(),
-        x: insertData.insertx,
-        y: insertData.inserty,
-        color: insertData.colormatch
-      };
-      console.log(bodyinfo);
-      for(var i = 0; i < AllSnakes.length; i++) {
-        if(AllSnakes[i].id === actid) {
-          AllSnakes[i].body.splice(0, 1);
-          judge++;
-        }
-        if(AllSnakes[i].id === pasid) {
-          if(pos < AllSnakes[i].body.length - 1) {
-            AllSnakes[i].body.splice(pos, 0, bodyinfo);
-          }
-          else {
-            AllSnakes[i].body.push(bodyinfo);
-          }
-          judge++;
-        }
-        if(judge === 2) break;
-      }
+      // var insertData = JSON.parse(data);
+      // var actid = insertData.actid;
+      // var pasid = insertData.pasid;
+      // var pos = insertData.pos;
+      // var judge = 0;
+      // var bodyinfo = {
+      //   id: uuid.v1(),
+      //   x: insertData.insertx,
+      //   y: insertData.inserty,
+      //   color: insertData.colormatch
+      // };
+      // console.log(bodyinfo);
+      // for(var i = 0; i < AllSnakes.length; i++) {
+      //   if(AllSnakes[i].id === actid) {
+      //     AllSnakes[i].body.splice(0, 1);
+      //     judge++;
+      //   }
+      //   if(AllSnakes[i].id === pasid) {
+      //     if(pos < AllSnakes[i].body.length - 1) {
+      //       AllSnakes[i].body.splice(pos, 0, bodyinfo);
+      //     }
+      //     else {
+      //       AllSnakes[i].body.push(bodyinfo);
+      //     }
+      //     judge++;
+      //   }
+      //   if(judge === 2) break;
+      // }
       
       socket.broadcast.emit('insert_pas', data);
       // socket.broadcast.emit('insert_act', Actid);
