@@ -144,6 +144,65 @@ class Snake extends egret.Sprite{
 		animate.to({scaleX: 1.0, scaleY: 1.0},500,egret.Ease.circOut);
 		this.setChildIndex(this.BodyList[this.BodyList.length - 1],0);
 	}
+	public ReDrawOthers(x,y,colornum) {
+		this.removeChildren();
+		this.Head = new BodyPoint();
+		let headcolor: Color = new Color();
+		this.BodyList[0].Color.Origin = headcolor.OriginColor[colornum[0]];
+		this.BodyList[0].Color.Bright = headcolor.BrightColor[colornum[0]];
+		this.x = x;
+		this.y = y;
+		this.bool = true;
+		this.BodyList[0].bodypoint.graphics.clear();
+		this.BodyList[0].bodypoint.graphics.lineStyle(4,0x000000);
+		this.BodyList[0].bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
+		this.BodyList[0].bodypoint.graphics.drawCircle(0,0,this.radius);
+		this.Head = this.BodyList[0];
+		this.addChild(this.Head);
+
+		for(var i = 1; i<this.BodyList.length; i++) {
+			let bodycolor: Color = new Color();
+			this.BodyList[i].Color.Origin = bodycolor.OriginColor[colornum[i]];
+			this.BodyList[i].Color.Bright = bodycolor.BrightColor[colornum[i]];
+			this.BodyList[i].bodypoint.graphics.clear();
+			this.BodyList[i].bodypoint.graphics.lineStyle(4,this.BodyList[i].Color.Bright);
+			this.BodyList[i].bodypoint.graphics.beginFill(this.BodyList[i].Color.Origin);
+			this.BodyList[i].bodypoint.graphics.drawCircle(0,0,this.radius);
+			this.addChild(this.BodyList[i]);
+			this.setChildIndex(this.BodyList[i],0);
+		}
+	}
+
+	public ReDraw(x,y,colornum) {
+		let headcolor: Color = new Color();
+
+		this.Head.Color.Origin = headcolor.OriginColor[colornum[0]];
+		this.Head.Color.Bright = 0x000000;
+		this.Head.bodypoint.graphics.clear();
+		this.Head.bodypoint.graphics.lineStyle(4,0x000000);
+		this.Head.bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
+		this.Head.bodypoint.graphics.drawCircle(0,0,this.radius);
+		egret.Tween.removeTweens(this.Head);
+		this.Head.x = 200 - this.x;
+		this.Head.y = 200 - this.y;
+		
+		this.addChild(this.Head);
+
+		for(var i = 1; i<this.BodyList.length; i++) {
+			let bodycolor: Color = new Color();
+			this.BodyList[i].Color.Origin = bodycolor.OriginColor[colornum[i]];
+			this.BodyList[i].Color.Bright = bodycolor.BrightColor[colornum[i]];
+			this.BodyList[i].bodypoint.graphics.clear();
+			this.BodyList[i].bodypoint.graphics.lineStyle(4,this.BodyList[i].Color.Bright);
+			this.BodyList[i].bodypoint.graphics.beginFill(this.BodyList[i].Color.Origin);
+			this.BodyList[i].bodypoint.graphics.drawCircle(0,0,this.radius);
+			egret.Tween.removeTweens(this.BodyList[i]);
+			this.BodyList[i].x = this.BodyList[i - 1].x + this.radius;
+			this.BodyList[i].y = this.BodyList[i - 1].y + this.radius;
+			this.addChild(this.BodyList[i]);
+			this.setChildIndex(this.BodyList[i],0);
+		}
+	}
 
 	public CreatOther(info: any) {
 		this.id = info.id;
@@ -228,5 +287,134 @@ class Snake extends egret.Sprite{
 			let animate = egret.Tween.get(bodypoint);
 			animate.to({scaleX: 0.01, scaleY: 0.01}, 300);
 		});
+	}
+
+	/**
+	 * 添加新节点
+	 * id: 插入球的id, pos: 插入位置, x: 插入球x坐标, y: 插入球y坐标, Bcolor:插入球浅色, Ocolor: 插入球深色
+	 */
+	public addSinglePoint(id: string, pos: number, x: number, y: number, Bcolor: number, Ocolor: number) {
+		let point: BodyPoint = new BodyPoint();
+		let pointColor = new Color();
+		pointColor.Bright = Bcolor;
+		pointColor.Origin = Ocolor;
+		point.Create(this.radius, pointColor, false);
+		point.x = x - this.x;
+		point.y = y - this.y;
+		point.id = id;
+		
+		if(pos < this.BodyList.length - 1) {
+			let index = this.getChildIndex(this.BodyList[pos - 1]);
+        	this.addChildAt(point, index);
+			this.BodyList.splice(pos, 0, point);
+		}
+		else {
+			let index = this.getChildIndex(this.BodyList[pos - 1]);
+        	this.addChildAt(point, index);
+			this.BodyList.push(point);
+		}
+	}
+
+	//各种处理
+	public Edit(infor:any) {
+		let PasInf;
+		PasInf = new Object;
+		if(infor.stampH - infor.stampQ <= 1){ //撞失败
+			PasInf.passnake = infor.PasSnake;
+			PasInf.actsnake = infor.ActSnake
+			PasInf.food = null;
+			// PasInf.actsnake = 瞬移没写
+			return PasInf;
+		}
+		else { //撞成功
+			let toFood = infor.PasSnake.BodyList.slice(infor.stampH+1);
+			infor.PasSnake.splice(infor.BodyList[infor.stampQ],infor.BodyList.length-infor.stampH+1);
+			PasInf.passnake = infor.PasSnake;
+			PasInf.food = this.CrashToFood(toFood);
+			// PasInf.actsnake = 加成没写
+			return PasInf;
+		}
+	}
+	public CrashToFood(body) {
+		let food: Food;
+		let foods = [];
+		for(var i =0;i<body.BodyList.length;i++){
+			food = new Food;
+			food.GetBigFood(body.BodyList[i].x+body.x,body.BodyList[i].y+body.y,this.radius,body.BodyList[i].Color);
+			foods.push(food);
+		}
+		return foods;
+	}
+
+
+	/**
+	 * 蛇身消除判断
+	 * pos: 插入位置（检测起点）, size: 蛇身长度
+	 */
+	public ZumaRemove(pos, size) {
+		let infors;
+		infors = new Object();
+		let head = pos;
+		let last = pos;
+		let FlagColor;
+		if(pos === this.BodyList.length) pos--;
+		FlagColor = this.BodyList[pos].Color.Origin;
+		while (this.BodyList[head].Color.Origin === FlagColor && head) head--;
+		if(head || this.BodyList[head].Color.Origin !== FlagColor) head++;
+		if(last < size) {
+			while(this.BodyList[last].Color.Origin === FlagColor && last < size) {
+				last++; 
+				if(last === size) break;
+			}
+		}
+		
+		if(last - head > 2) {
+            for(var i = head; i < last; i++) {
+                this.removeChild(this.BodyList[i]);
+            }
+			this.BodyList.splice(head, last - head);
+			infors.size = size + head - last;
+			infors.head = head;
+			infors.last = last;
+			infors.judge = 1;
+			return infors;
+		}
+		else {
+			infors.head = head;
+			infors.last = last;
+			infors.judge = 0;
+			return infors;
+		}
+	}
+
+	public otherZumaRemove(head, last) {
+		if(last - head > 2) {
+			for(var i = head; i < last; i++) {
+				this.removeChild(this.BodyList[i]);
+			}
+			this.BodyList.splice(head, last - head);
+		}
+	}
+
+	public bodypointModify(x: number, y: number) {
+		this.Head.bodypoint.graphics.clear();
+        this.Head.bodypoint.graphics.lineStyle(4,this.Head.Color.Bright);
+        this.Head.bodypoint.graphics.beginFill(this.Head.Color.Origin);
+        this.Head.bodypoint.graphics.drawCircle(0,0,this.radius);
+        this.Head.bodypoint.graphics.endFill(); 
+		this.Head.x = x;
+		this.Head.y = y;
+	}
+
+	/**
+	 * 蛇头改变
+	 */
+	public headChange() {
+		this.Head = this.BodyList[0];
+		this.Head.bodypoint.graphics.clear();
+        this.Head.bodypoint.graphics.lineStyle(4,0x000000);
+        this.Head.bodypoint.graphics.beginFill(this.Head.Color.Origin);
+        this.Head.bodypoint.graphics.drawCircle(0,0,this.radius);
+        this.Head.bodypoint.graphics.endFill(); 
 	}
 }

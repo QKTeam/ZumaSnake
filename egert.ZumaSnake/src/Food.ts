@@ -4,6 +4,7 @@ class Food extends egret.Sprite{
     public FoodRadius: number;
     public food: egret.Shape;
     public id: string;
+    public colornum: number;
     public constructor() {
         super();
     }
@@ -40,6 +41,7 @@ class Food extends egret.Sprite{
         //爆尸体
     public GetBigFood(x: number,y: number,r: number,color: Color){
         this.color = color;
+        this.colornum = this.color.GetColorNum(this.color);
         this.food = new egret.Shape();
         this.intake = 5;
         this.FoodRadius = 0.2 * r * this.intake;

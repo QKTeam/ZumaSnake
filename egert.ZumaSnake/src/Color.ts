@@ -24,4 +24,10 @@ class Color {
         this.Origin = this.OriginColor[num];
         this.Bright = this.BrightColor[num];
     }
+    public GetColorNum(color: Color) {
+        for(var i = 0;i<this.OriginColor.length;i++){
+            if(color.Origin === this.OriginColor[i])
+                return i;
+        }
+    }
 }

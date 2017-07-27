@@ -20,7 +20,7 @@ for(var i = 0; i < 666; i++) {
 }
 io.on('connection', function(socket){
   console.log('a user connected');
-  socket.on('join', function(data, x, y) {
+  socket.on('join', function() {
     var id = uuid.v1();
     var snakeX = Math.random() * (5000 - 10 - 1920/2);
     var snakeY = Math.random() * (3000 - 10 - 1080/2);
@@ -72,6 +72,24 @@ io.on('connection', function(socket){
       }
     });
 
+    socket.on('rebirth',function(id,length) {
+      var id = id;
+      var newX = 500//Math.random() * 1920;
+      var newY = 500//Math.random() * 1080;
+      var newColor = [];
+      for(var i =  0;i<length;i++) {
+        var color = Math.round(Math.random() * 6);
+        newColor.push(color);
+      }
+      for(var i = 0;i<AllSnakes.length;i++) {
+        if(AllSnakes[i].id === id) {
+          AllSnakes[i].body[i].x = newX;
+          AllSnakes[i].body[i].y = newY;
+        }
+      }
+      io.emit('rebirth',id,newX,newY,newColor);
+    });
+
     socket.on('move', function(data, id) {
       var position = JSON.parse(data);
       var snake_info = {
@@ -84,9 +102,10 @@ io.on('connection', function(socket){
           return;
         }
       });
-      
       socket.broadcast.emit('move',JSON.stringify(snake_info));
     });
+
+
 
     socket.on('Drop',function(data) {
       
@@ -124,6 +143,64 @@ io.on('connection', function(socket){
       socket.emit('own_add_point',data, food_id);
       socket.broadcast.emit('other_add_point', id, data, food_id);
     });
+
+    socket.on('crash',function(data,PasSnake,ActSnake) {
+      socket.broadcast.emit('other_crash',data,PasSnake,ActSnake);
+      for(var i = 0;i<PasInf.food.length;i++) {
+        var food = {};
+        food.x = PasInf.food[i].x;
+        food.y = PasInf.food[i].y;
+        food.intake = PasInf.food[i].intake;
+        food.color = this.colornum;
+        food.id = uuid.v1();
+        returnfood.push(food);
+        AllFood.push(food);
+      }
+      socket.emit('CrashToFood',JSON.stringify(returnfood))
+    });
+    socket.on('EditSelf',function(data) {
+      socket.broadcast.emit('EditOther',data)
+    });
+
+    socket.on('insert', function(data) {
+      // //{actid, pasid, pos, insertx, inserty, insertBcolor, insertOcolor, headid}
+      // var insertData = JSON.parse(data);
+      // var actid = insertData.actid;
+      // var pasid = insertData.pasid;
+      // var pos = insertData.pos;
+      // var judge = 0;
+      // var bodyinfo = {
+      //   id: insertData.headid,
+      //   x: insertData.insertx,
+      //   y: insertData.inserty,
+      //   color: insertData.colormatch
+      // };
+      // console.log(bodyinfo);
+      // for(var i = 0; i < AllSnakes.length; i++) {
+      //   if(AllSnakes[i].id === actid) {
+      //     AllSnakes[i].body.splice(0, 1);
+      //     judge++;
+      //   }
+      //   if(AllSnakes[i].id === pasid) {
+      //     if(pos < AllSnakes[i].body.length - 1) {
+      //       AllSnakes[i].body.splice(pos, 0, bodyinfo);
+      //     }
+      //     else {
+      //       AllSnakes[i].body.push(bodyinfo);
+      //     }
+      //     judge++;
+      //   }
+      //   if(judge === 2) break;
+      // }
+      
+      socket.broadcast.emit('insert_pas', data);
+      // socket.broadcast.emit('insert_act', Actid);
+    });
+
+    socket.on('ZumaRemove', function(removeData) {
+      socket.broadcast.emit('other_ZumaRemove', removeData);
+    });
+
   });
 });
 
