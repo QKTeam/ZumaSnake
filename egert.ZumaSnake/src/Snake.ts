@@ -17,6 +17,10 @@ class Snake extends egret.Sprite{
 	public bool:boolean;
 
 	public id: String;
+
+	public AnimateRemove: boolean;
+	public AnimateSetX: number;
+	public AnimateSetY: number;
 	
 	public constructor() {
 		super();
@@ -26,6 +30,7 @@ class Snake extends egret.Sprite{
 		this.count = 0;
 		this.bool = true;
 		this.radius = 10;
+		this.AnimateRemove = false;
 	}
 	//本地蛇生成
 	/**
@@ -58,7 +63,6 @@ class Snake extends egret.Sprite{
 		this.setChildIndex(this.Head, -999);
 
 		for (var i = 1; i < bodypointInfo.body.length; i++) {
-			console.log('data-length',bodypointInfo.body.length)
 			let bodycolor: Color = new Color();
 			bodycolor.Origin = headcolor.OriginColor[bodypointInfo.body[i].color];
 			bodycolor.Bright = headcolor.BrightColor[bodypointInfo.body[i].color];
@@ -81,11 +85,10 @@ class Snake extends egret.Sprite{
 	public Move(e: egret.TouchEvent, interval: number) {
 		let mouseX = e.stageX;
 		let mouseY = e.stageY;
-		let animate: egret.Tween;
 
-		let headX = this.x + this.BodyList[0].x;
-		let headY = this.y + this.BodyList[0].y;
-		animate = egret.Tween.get(this.BodyList[0]);
+		let headX = this.x + this.Head.x;
+		let headY = this.y + this.Head.y;
+		
 
 		let length = Math.sqrt((mouseX - headX)*(mouseX - headX) + (mouseY - headY)*(mouseY - headY));
 		let VectorX = (mouseX - headX)/length;
@@ -93,9 +96,16 @@ class Snake extends egret.Sprite{
 
 		if (VectorX*length*VectorX*length+VectorY*length*VectorY*length<=this.speed*this.speed) return;
 
-		let NextX = this.BodyList[0].x + this.speed * VectorX;
-		let NextY = this.BodyList[0].y + this.speed * VectorY;
+		let NextX = this.Head.x + this.speed * VectorX;
+		let NextY = this.Head.y + this.speed * VectorY;
 
+		//let AnimateFlag = this.AnimateRemove;
+		let SetX = this.AnimateSetX;
+		let SetY = this.AnimateSetY;
+		let thisSnake = this
+		//console.log(AnimateFlag);
+
+		let animate = egret.Tween.get(this.Head);
 		animate.to({x: NextX, y: NextY}, interval);
 
 		for (var i = this.BodyList.length - 1; i >= 1; i--) {
@@ -151,18 +161,18 @@ class Snake extends egret.Sprite{
 	}
 
 	public ReDraw(x,y,colornum) {
-		this.Head = new BodyPoint();
 		let headcolor: Color = new Color();
-		this.BodyList[0].Color.Origin = headcolor.OriginColor[colornum[0]];
-		this.BodyList[0].Color.Bright = headcolor.BrightColor[colornum[0]];
-		this.x = x;
-		this.y = y;
-		this.bool = true;
-		this.BodyList[0].bodypoint.graphics.clear();
-		this.BodyList[0].bodypoint.graphics.lineStyle(4,0x000000);
-		this.BodyList[0].bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
-		this.BodyList[0].bodypoint.graphics.drawCircle(0,0,this.radius);
-		this.Head = this.BodyList[0];
+
+		this.Head.Color.Origin = headcolor.OriginColor[colornum[0]];
+		this.Head.Color.Bright = 0x000000;
+		this.Head.bodypoint.graphics.clear();
+		this.Head.bodypoint.graphics.lineStyle(4,0x000000);
+		this.Head.bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
+		this.Head.bodypoint.graphics.drawCircle(0,0,this.radius);
+		egret.Tween.removeTweens(this.Head);
+		this.Head.x = 200 - this.x;
+		this.Head.y = 200 - this.y;
+		
 		this.addChild(this.Head);
 
 		for(var i = 1; i<this.BodyList.length; i++) {
@@ -173,6 +183,9 @@ class Snake extends egret.Sprite{
 			this.BodyList[i].bodypoint.graphics.lineStyle(4,this.BodyList[i].Color.Bright);
 			this.BodyList[i].bodypoint.graphics.beginFill(this.BodyList[i].Color.Origin);
 			this.BodyList[i].bodypoint.graphics.drawCircle(0,0,this.radius);
+			egret.Tween.removeTweens(this.BodyList[i]);
+			this.BodyList[i].x = this.BodyList[i - 1].x + this.radius;
+			this.BodyList[i].y = this.BodyList[i - 1].y + this.radius;
 			this.addChild(this.BodyList[i]);
 			this.setChildIndex(this.BodyList[i],0);
 		}
@@ -312,8 +325,6 @@ class Snake extends egret.Sprite{
 	 * pos: 插入位置（检测起点）, size: 蛇身长度
 	 */
 	public ZumaRemove(pos, size) {
-		console.log(pos);
-		
 		let infors;
 		infors = new Object();
 		let head = pos;

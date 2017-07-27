@@ -82,9 +82,8 @@ class Main extends egret.DisplayObjectContainer {
         this.socket.on('create', function(NewSnake) {
             var SnakeInfo = JSON.parse(NewSnake);
             GiveSnakeToStage(SnakeInfo);
-            console.log(stage.snake);
             
-            // console.log('join',stage.otherSnakes);
+             console.log('join',stage.snake.Head.id);
         });
         
         
@@ -164,8 +163,12 @@ class Main extends egret.DisplayObjectContainer {
         });
 
         this.socket.on('rebirth',function(id,newX,newY,newColor) {
-            if(stage.snake.id === id)
-                stage.ReDraw(id,newX,newY,newColor);
+            if(stage.snake.id === id){
+                stage.snake.removeChildren();
+                stage.removeChild(stage.snake);
+                stage.snake.ReDraw(200,200,newColor);
+                stage.addChild(stage.snake);
+            }
             else{
                 stage.removeChild(stage.otherSnakes[id]);
                 stage.otherSnakes[id].ReDrawOthers(newX,newY,newColor);
@@ -398,6 +401,7 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private onTimer() {
+        
         // if(this.food.length<this.foodadd)
         //     this.addFood();
         for(var i = 0;i < this.food.length;i++) {
@@ -406,7 +410,7 @@ class Main extends egret.DisplayObjectContainer {
                 break;
             }
         }
-        this.snake.Move(this.moveEvent, this.interval);
+        
 
         
         //蛇碰撞
@@ -454,6 +458,8 @@ class Main extends egret.DisplayObjectContainer {
             }
             if(flag === 1) break;
         }
+
+        this.snake.Move(this.moveEvent, this.interval);
     }
 
     /**
@@ -465,7 +471,6 @@ class Main extends egret.DisplayObjectContainer {
         let x1 = head.x + this.snake.x;
         let y1 = head.y + this.snake.y;
 
-        console.log(x1, y1);
         
         let point: BodyPoint = new BodyPoint();
         let insertData;
@@ -522,7 +527,10 @@ class Main extends egret.DisplayObjectContainer {
             datum.push(infors);
         }
         removeData.datum = datum;
-        this.Rebirth(this.snake);
+        // this.Rebirth(this.snake);
+
+        
+        this.socket.emit('rebirth',this.snake.id,this.snake.BodyList.length);
         this.socket.emit('ZumaRemove', JSON.stringify(removeData));
     }
 
@@ -719,11 +727,10 @@ class Main extends egret.DisplayObjectContainer {
         return null;
     }
 
-    private Rebirth(DieSnake: Snake) {  //写在判断执行后
-        console.log("6666");       
+    private Rebirth(DieSnake: Snake) {  //写在判断执行后    
         this.removeChild(this.snake);
         this.snake.removeChildren();
-        this.socket.emit('rebirth',this.snake.id,this.snake.BodyList.length);
+        //this.socket.emit('rebirth',this.snake.id,this.snake.BodyList.length);
     }
 
     private ReDraw(id,x,y,newColor) {
