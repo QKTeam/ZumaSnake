@@ -82,8 +82,11 @@ class Main extends egret.DisplayObjectContainer {
         this.socket.on('create', function(NewSnake) {
             var SnakeInfo = JSON.parse(NewSnake);
             GiveSnakeToStage(SnakeInfo);
+            console.log(stage.snake);
+            
             // console.log('join',stage.otherSnakes);
         });
+        
         
         function GiveSnakeToStage(SnakeInfo) {
             stage.snake = new Snake();
@@ -115,6 +118,7 @@ class Main extends egret.DisplayObjectContainer {
             stage.otherSnakes[snake_info.id] = Osnake;
             stage.addChild(Osnake);
             stage.setChildIndex(Osnake,1);
+            
             // console.log('other join',stage.otherSnakes);         
         });
 
@@ -157,6 +161,17 @@ class Main extends egret.DisplayObjectContainer {
                     delete stage.otherSnakes[id];
                 }, 300);
             }
+        });
+
+        this.socket.on('rebirth',function(id,newX,newY,newColor) {
+            if(stage.snake.id === id)
+                stage.ReDraw(id,newX,newY,newColor);
+            else{
+                stage.removeChild(stage.otherSnakes[id]);
+                stage.otherSnakes[id].ReDrawOthers(newX,newY,newColor);
+                stage.addChild(stage.otherSnakes[id]);
+            }
+                
         });
 
         this.socket.on('AnimateAddFood', function(data, islocal, id, bodyid) {
@@ -289,7 +304,7 @@ class Main extends egret.DisplayObjectContainer {
                     }
                 }
             }
-        })
+        });
 
 
         this.GetMoveTimer = new egret.Timer(80);
@@ -387,12 +402,16 @@ class Main extends egret.DisplayObjectContainer {
             }
         }
         this.snake.Move(this.moveEvent, this.interval);
+
         
         //蛇碰撞
         for(var key in this.otherSnakes) {
             let flag = 0;
             let PassiveSnake: Snake;
             PassiveSnake = this.otherSnakes[key];
+            console.log(this.otherSnakes[key].BodyList.length);
+            
+            
             // console.log(233);
             
             for(var j = 0; j < PassiveSnake.BodyList.length; j++) {
@@ -412,7 +431,7 @@ class Main extends egret.DisplayObjectContainer {
                     HitCheck = this.snakeHitCheck(head, Mbody, Lbody, Rbody, PassiveSnake);
                     //返回插入位置 HitCheck.bool 表示能否插入过别的蛇
                     if(HitCheck.bool) {
-                        this.snake.bool = false;
+                        // this.snake.bool = false;
                         let insertPos = j + HitCheck.nvalue;
                         this.snakeInsert(insertPos, head, PassiveSnake,this.snake);
                         flag = 1;
@@ -501,10 +520,8 @@ class Main extends egret.DisplayObjectContainer {
             datum.push(infors);
         }
         removeData.datum = datum;
-
+        this.Rebirth(this.snake);
         this.socket.emit('ZumaRemove', JSON.stringify(removeData));
-        
-        console.log(JSON.stringify(removeData));
     }
 
     /**
@@ -643,6 +660,7 @@ class Main extends egret.DisplayObjectContainer {
             }
         }
 	}
+    
 
     private BodytoFood(fromX: number, fromY: number, x: number, y: number, intake: number, color: number, foodid: string) {
 		let food: Food;
@@ -681,4 +699,34 @@ class Main extends egret.DisplayObjectContainer {
         }
         return null;
     }
+
+    private Rebirth(DieSnake: Snake) {  //写在判断执行后
+        console.log("6666");       
+        this.removeChild(this.snake);
+        this.snake.removeChildren();
+        this.socket.emit('rebirth',this.snake.id,this.snake.BodyList.length);
+    }
+
+    private ReDraw(id,x,y,newColor) {
+        this.snake.ReDraw(x,y,newColor);
+        this.addChild(this.snake);
+        let move_info: Array<Object> = [];
+            for (var i = 0; i < this.snake.BodyList.length; i++) {
+                let single_object;
+                let getcolor = new Color();
+                single_object = {
+                    id: this.snake.BodyList[i].id,
+                    x: this.snake.BodyList[i].x,
+                    y: this.snake.BodyList[i].y,
+                    color: getcolor.OriginColor.indexOf(this.snake.BodyList[i].Color.Origin)
+                }
+                move_info.push(single_object);
+            }
+        // this.socket.emit('new_a_die',JSON.stringify());
+            
+        
+        
+    }
+    
+    
 }

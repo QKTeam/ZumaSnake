@@ -20,7 +20,7 @@ for(var i = 0; i < 233; i++) {
 }
 io.on('connection', function(socket){
   console.log('a user connected');
-  socket.on('join', function(data, x, y) {
+  socket.on('join', function() {
     var id = uuid.v1();
     var snakeX = Math.random() * 1920;
     var snakeY = Math.random() * 1080;
@@ -56,6 +56,24 @@ io.on('connection', function(socket){
       }
     });
 
+    socket.on('rebirth',function(id,length) {
+      var id = id;
+      var newX = Math.random() * 1920;
+      var newY = Math.random() * 1080;
+      var newColor = [];
+      for(var i =  0;i<length;i++) {
+        var color = Math.round(Math.random() * 6);
+        newColor.push(color);
+      }
+      for(var i = 0;i<AllSnakes.length;i++) {
+        if(AllSnakes[i].id === id) {
+          AllSnakes[i].x = newX;
+          AllSnakes[i].y = newY;
+        }
+      }
+      io.emit('rebirth',id,newX,newY,newColor);
+    });
+
     socket.on('move', function(data, id) {
       var position = JSON.parse(data);
       var snake_info = {
@@ -68,9 +86,10 @@ io.on('connection', function(socket){
           return;
         }
       });
-      
       socket.broadcast.emit('move',JSON.stringify(snake_info));
     });
+
+
 
     socket.on('Drop',function(data) {
       

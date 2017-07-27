@@ -121,6 +121,60 @@ class Snake extends egret.Sprite{
 		animate.to({scaleX: 1.0, scaleY: 1.0},500,egret.Ease.circOut);
 		this.setChildIndex(this.BodyList[this.BodyList.length - 1],0);
 	}
+	public ReDrawOthers(x,y,colornum) {
+		this.removeChildren();
+		this.Head = new BodyPoint();
+		let headcolor: Color = new Color();
+		this.BodyList[0].Color.Origin = headcolor.OriginColor[colornum[0]];
+		this.BodyList[0].Color.Bright = 0x000000;
+		this.x = x;
+		this.y = y;
+		this.BodyList[0].bodypoint.graphics.clear();
+		this.BodyList[0].bodypoint.graphics.lineStyle(4,0x000000);
+		this.BodyList[0].bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
+		this.BodyList[0].bodypoint.graphics.drawCircle(0,0,this.radius);
+		this.Head = this.BodyList[0];
+		this.addChild(this.Head);
+
+		for(var i = 1; i<this.BodyList.length; i++) {
+			let bodycolor: Color = new Color();
+			this.BodyList[i].Color.Origin = bodycolor.OriginColor[colornum[i]];
+			this.BodyList[i].Color.Bright = bodycolor.BrightColor[colornum[i]];
+			this.BodyList[i].bodypoint.graphics.clear();
+			this.BodyList[i].bodypoint.graphics.lineStyle(4,this.BodyList[i].Color.Bright);
+			this.BodyList[i].bodypoint.graphics.beginFill(this.BodyList[i].Color.Origin);
+			this.BodyList[i].bodypoint.graphics.drawCircle(0,0,this.radius);
+			this.addChild(this.BodyList[i]);
+			this.setChildIndex(this.BodyList[i],0);
+		}
+	}
+
+	public ReDraw(x,y,colornum) {
+		this.Head = new BodyPoint();
+		let headcolor: Color = new Color();
+		this.BodyList[0].Color.Origin = headcolor.OriginColor[colornum[0]];
+		this.BodyList[0].Color.Bright = 0x000000;
+		this.x = x;
+		this.y = y;
+		this.BodyList[0].bodypoint.graphics.clear();
+		this.BodyList[0].bodypoint.graphics.lineStyle(4,0x000000);
+		this.BodyList[0].bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
+		this.BodyList[0].bodypoint.graphics.drawCircle(0,0,this.radius);
+		this.Head = this.BodyList[0];
+		this.addChild(this.Head);
+
+		for(var i = 1; i<this.BodyList.length; i++) {
+			let bodycolor: Color = new Color();
+			this.BodyList[i].Color.Origin = bodycolor.OriginColor[colornum[i]];
+			this.BodyList[i].Color.Bright = bodycolor.BrightColor[colornum[i]];
+			this.BodyList[i].bodypoint.graphics.clear();
+			this.BodyList[i].bodypoint.graphics.lineStyle(4,this.BodyList[i].Color.Bright);
+			this.BodyList[i].bodypoint.graphics.beginFill(this.BodyList[i].Color.Origin);
+			this.BodyList[i].bodypoint.graphics.drawCircle(0,0,this.radius);
+			this.addChild(this.BodyList[i]);
+			this.setChildIndex(this.BodyList[i],0);
+		}
+	}
 
 	public CreatOther(info: any) {
 		this.id = info.id;
