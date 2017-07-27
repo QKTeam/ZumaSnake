@@ -177,30 +177,35 @@ class Main extends egret.DisplayObjectContainer {
         this.socket.on('AnimateAddFood', function(data, islocal, id, bodyid) {
             let addfood: Array<any> = JSON.parse(data);
             if (islocal === "true") {
-                var find = stage.GetBodyPointByID(bodyid, stage.snake);              
-                if(find !== null){
-                    var last_body = find[1];
-                    stage.snake.BodyList.splice(find[0], 1);
-                    var animate: egret.Tween = egret.Tween.get(last_body);
-                    animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
-                    var time = egret.setTimeout(function() {
-                        stage.snake.removeChild(last_body);
-                    }, stage, 500);
-                }
+                stage.GetBodyPointByID(bodyid, stage.snake);   
+                // console.log(find[1].$parent);
+                // console.log(stage.snake.BodyList.length);
+                
+                // if(find !== null){
+                //     var last_body = find[1];
+                //     stage.snake.BodyList.splice(find[0], 1);
+                //     var animate: egret.Tween = egret.Tween.get(last_body);
+                //     animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
+                //     var time = egret.setTimeout(function() {
+                //         stage.snake.removeChild(last_body);
+                //     }, stage, 500);
+                // }
             }
             else {
                 let findsnake = stage.otherSnakes[id];
                 if(findsnake !== undefined){
-                    var find = stage.GetBodyPointByID(bodyid, findsnake);
-                    if (find !== null) {
-                        var last_body = find[1];
-                        findsnake.BodyList.splice(find[0], 1);
-                        var animate: egret.Tween = egret.Tween.get(last_body);
-                        animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
-                        var time = egret.setTimeout(function() {
-                            findsnake.removeChild(last_body);
-                        }, stage, 500);
-                    }
+                    stage.GetBodyPointByID(bodyid, findsnake);
+                    // console.log(find[1].$parent);
+                    
+                    // if (find !== null) {
+                    //     var last_body = find[1];
+                    //     findsnake.BodyList.splice(find[0], 1);
+                    //     var animate: egret.Tween = egret.Tween.get(last_body);
+                    //     animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
+                    //     var time = egret.setTimeout(function() {
+                    //         findsnake.removeChild(last_body);
+                    //     }, stage, 500);
+                    // }
                 }
             }
             addfood.forEach(food => {
@@ -409,10 +414,6 @@ class Main extends egret.DisplayObjectContainer {
             let flag = 0;
             let PassiveSnake: Snake;
             PassiveSnake = this.otherSnakes[key];
-            console.log(this.otherSnakes[key].BodyList.length);
-            
-            
-            // console.log(233);
             
             for(var j = 0; j < PassiveSnake.BodyList.length; j++) {
                 
@@ -431,7 +432,7 @@ class Main extends egret.DisplayObjectContainer {
                     HitCheck = this.snakeHitCheck(head, Mbody, Lbody, Rbody, PassiveSnake);
                     //返回插入位置 HitCheck.bool 表示能否插入过别的蛇
                     if(HitCheck.bool) {
-                        // this.snake.bool = false;
+                        this.snake.bool = false;
                         let insertPos = j + HitCheck.nvalue;
                         this.snakeInsert(insertPos, head, PassiveSnake,this.snake);
                         flag = 1;
@@ -467,7 +468,8 @@ class Main extends egret.DisplayObjectContainer {
         console.log(x1, y1);
         
         let point: BodyPoint = new BodyPoint();
-        let insertData;;
+        let insertData;
+        let headid = this.snake.Head.id;
         insertData = new Object();
         insertData.actid = this.snake.id;
         insertData.pasid = PassiveSnake.id;
@@ -476,6 +478,7 @@ class Main extends egret.DisplayObjectContainer {
         insertData.inserty = y1;
         insertData.insertBcolor = this.snake.Head.Color.Bright;
         insertData.insertOcolor = this.snake.Head.Color.Origin;
+        insertData.headid = headid;
         for(var i = 0; i < this.snake.Head.Color.OriginColor.length; i++) {
             if(this.snake.Head.Color.OriginColor[i] === this.snake.Head.Color.Origin) {
                 insertData.colormatch = i;
@@ -486,7 +489,7 @@ class Main extends egret.DisplayObjectContainer {
         // this.snake.bodypointModify(x1, y1);
         
         this.snake.removeChild(this.snake.BodyList[0]);
-        PassiveSnake.addSinglePoint(this.snake.Head.id, pos, insertData.insertx, insertData.inserty, insertData.insertBcolor, insertData.insertOcolor);
+        PassiveSnake.addSinglePoint(headid, pos, insertData.insertx, insertData.inserty, insertData.insertBcolor, insertData.insertOcolor);
 
         // if(pos < PassiveSnake.BodyList.length - 1) {
 		// 	// PassiveSnake.BodyList.splice(pos, 0, point);
@@ -500,7 +503,6 @@ class Main extends egret.DisplayObjectContainer {
 		// }
 
         this.snake.BodyList.splice(0, 1);
-        this.snake.headChange();
         
         this.socket.emit('insert', JSON.stringify(insertData));
 
@@ -632,7 +634,10 @@ class Main extends egret.DisplayObjectContainer {
             this.endTouchAccelerate();
         }
         if(this.snake.BodyList.length > 2 && this.snake.count%100 === 0) {
+            console.log('11111',this.snake.BodyList.length);
+            console.log(this.snake.BodyList[this.snake.BodyList.length - 1]);
             var last_body = this.snake.BodyList[this.snake.BodyList.length - 1];
+            
             var drop_body = {
                 id: last_body.id,
                 x: last_body.x + this.snake.x,
@@ -691,10 +696,24 @@ class Main extends egret.DisplayObjectContainer {
     private GetBodyPointByID(bodyid: string, snake: Snake) {
         for (var i = 0; i < snake.BodyList.length; i++) {
             if (snake.BodyList[i].id === bodyid) {
-                var info = [];
-                info[0] = i;
-                info[1] = snake.BodyList[i];
-                return info;
+                let last_body = snake.BodyList[i];
+                var animate: egret.Tween = egret.Tween.get(last_body);
+                animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
+                var time = egret.setTimeout(function() {
+                    // console.log(snake.BodyList[i].$parent);
+                    if (i === this.snake.BodyList.length) i--;
+                    console.log('22222',this.snake.BodyList.length);
+                    console.log(this.snake.BodyList[i]);
+                    console.log('i',i);
+                    
+                    snake.removeChild(last_body);
+                    snake.BodyList.splice(i, 1);
+                }, this, 500);
+                break;
+                // var info = [];
+                // info[0] = i;
+                // info[1] = snake.BodyList[i];
+                // return info;
             }
         }
         return null;

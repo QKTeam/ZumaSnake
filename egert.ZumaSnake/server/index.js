@@ -147,14 +147,14 @@ io.on('connection', function(socket){
     });
 
     socket.on('insert', function(data) {
-      //{actid, pasid, pos, insertx, inserty, insertBcolor, insertOcolor}
+      // //{actid, pasid, pos, insertx, inserty, insertBcolor, insertOcolor, headid}
       // var insertData = JSON.parse(data);
       // var actid = insertData.actid;
       // var pasid = insertData.pasid;
       // var pos = insertData.pos;
       // var judge = 0;
       // var bodyinfo = {
-      //   id: uuid.v1(),
+      //   id: insertData.headid,
       //   x: insertData.insertx,
       //   y: insertData.inserty,
       //   color: insertData.colormatch

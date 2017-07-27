@@ -126,9 +126,10 @@ class Snake extends egret.Sprite{
 		this.Head = new BodyPoint();
 		let headcolor: Color = new Color();
 		this.BodyList[0].Color.Origin = headcolor.OriginColor[colornum[0]];
-		this.BodyList[0].Color.Bright = 0x000000;
+		this.BodyList[0].Color.Bright = headcolor.BrightColor[colornum[0]];
 		this.x = x;
 		this.y = y;
+		this.bool = true;
 		this.BodyList[0].bodypoint.graphics.clear();
 		this.BodyList[0].bodypoint.graphics.lineStyle(4,0x000000);
 		this.BodyList[0].bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
@@ -153,9 +154,10 @@ class Snake extends egret.Sprite{
 		this.Head = new BodyPoint();
 		let headcolor: Color = new Color();
 		this.BodyList[0].Color.Origin = headcolor.OriginColor[colornum[0]];
-		this.BodyList[0].Color.Bright = 0x000000;
+		this.BodyList[0].Color.Bright = headcolor.BrightColor[colornum[0]];
 		this.x = x;
 		this.y = y;
+		this.bool = true;
 		this.BodyList[0].bodypoint.graphics.clear();
 		this.BodyList[0].bodypoint.graphics.lineStyle(4,0x000000);
 		this.BodyList[0].bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
@@ -262,15 +264,14 @@ class Snake extends egret.Sprite{
 		point.id = id;
 		
 		if(pos < this.BodyList.length - 1) {
-			this.BodyList.splice(pos, 0, point);
 			let index = this.getChildIndex(this.BodyList[pos - 1]);
         	this.addChildAt(point, index);
-			return point;
+			this.BodyList.splice(pos, 0, point);
 		}
 		else {
+			let index = this.getChildIndex(this.BodyList[pos - 1]);
+        	this.addChildAt(point, index);
 			this.BodyList.push(point);
-			this.addChild(point);
-			this.setChildIndex(this.BodyList[this.BodyList.length - 1],0);
 		}
 	}
 
@@ -318,12 +319,15 @@ class Snake extends egret.Sprite{
 		let head = pos;
 		let last = pos;
 		let FlagColor;
+		if(pos === this.BodyList.length) pos--;
 		FlagColor = this.BodyList[pos].Color.Origin;
 		while (this.BodyList[head].Color.Origin === FlagColor && head) head--;
 		if(head || this.BodyList[head].Color.Origin !== FlagColor) head++;
-		while(this.BodyList[last].Color.Origin === FlagColor && last < size) {
-			last++;
-			if(last === size) break;
+		if(last < size) {
+			while(this.BodyList[last].Color.Origin === FlagColor && last < size) {
+				last++; 
+				if(last === size) break;
+			}
 		}
 		
 		if(last - head > 2) {
