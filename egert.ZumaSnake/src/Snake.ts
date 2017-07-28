@@ -98,7 +98,6 @@ class Snake extends egret.Sprite{
 		let mouseX = e.stageX - BGX;
 		let mouseY = e.stageY - BGY;
 		let animate: egret.Tween;
-		
 		let headX = this.x + this.BodyList[0].x;
 		let headY = this.y + this.BodyList[0].y;
 		animate = egret.Tween.get(this.BodyList[0]);
@@ -293,25 +292,32 @@ class Snake extends egret.Sprite{
 	 * 添加新节点
 	 * id: 插入球的id, pos: 插入位置, x: 插入球x坐标, y: 插入球y坐标, Bcolor:插入球浅色, Ocolor: 插入球深色
 	 */
-	public addSinglePoint(id: string, pos: number, x: number, y: number, Bcolor: number, Ocolor: number) {
-		let point: BodyPoint = new BodyPoint();
+	public addSinglePoint(head: BodyPoint, pos: number, x: number, y: number, Bcolor: number, Ocolor: number) {
+		console.log(this.BodyList.length);
+		console.log(pos);
+		
+
 		let pointColor = new Color();
 		pointColor.Bright = Bcolor;
 		pointColor.Origin = Ocolor;
-		point.Create(this.radius, pointColor, false);
-		point.x = x - this.x;
-		point.y = y - this.y;
-		point.id = id;
+		head.bodypoint.graphics.clear();
+		head.bodypoint.graphics.lineStyle(4, Bcolor);
+		head.bodypoint.graphics.beginFill(Ocolor);
+		head.bodypoint.graphics.drawCircle(0,0,this.radius);
+		head.bodypoint.graphics.endFill();
+		egret.Tween.removeTweens(head);
+		head.x = x - this.x;
+		head.y = y - this.y;
 		
-		if(pos < this.BodyList.length - 1) {
+		if(pos <= this.BodyList.length - 1) {
 			let index = this.getChildIndex(this.BodyList[pos - 1]);
-        	this.addChildAt(point, index);
-			this.BodyList.splice(pos, 0, point);
+        	this.addChildAt(head, index);
+			this.BodyList.splice(pos, 0, head);
 		}
 		else {
 			let index = this.getChildIndex(this.BodyList[pos - 1]);
-        	this.addChildAt(point, index);
-			this.BodyList.push(point);
+        	this.addChildAt(head, index);
+			this.BodyList.push(head);
 		}
 	}
 
