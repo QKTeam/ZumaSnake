@@ -123,6 +123,7 @@ class Main extends egret.DisplayObjectContainer {
             stage.snake = new Snake();
             stage.snake.Create(SnakeInfo);
             stage.BackGround.addChild(stage.snake);
+            stage.BackGround.setChildIndex(stage.snake, -999);
         }
         this.socket.on('other_join', function(data) {
             let snake_info: any = JSON.parse(data);
@@ -130,7 +131,7 @@ class Main extends egret.DisplayObjectContainer {
             Osnake.CreatOther(snake_info);
             stage.otherSnakes[snake_info.id] = Osnake;
             stage.BackGround.addChild(Osnake);
-            stage.BackGround.setChildIndex(Osnake,1);      
+            stage.BackGround.setChildIndex(Osnake,-999);      
         });
 
         this.socket.on('allfood', function(data) {
@@ -165,7 +166,7 @@ class Main extends egret.DisplayObjectContainer {
                 Osnake.CreatOther(snake);
                 stage.otherSnakes[snake.id] = Osnake;
                 stage.BackGround.addChild(Osnake);
-                stage.BackGround.setChildIndex(Osnake,1);
+                stage.BackGround.setChildIndex(Osnake,-999);
             });  
         });
 
@@ -180,7 +181,9 @@ class Main extends egret.DisplayObjectContainer {
             }
         });
 
-        this.socket.on('rebirth',function(id,newX,newY,newColor) {
+        this.socket.on('rebirth',function(id,newX,newY,newColor,num) {
+            console.log(num);
+            
             if(stage.snake.id === id){
                 for (var i = 0; i < stage.snake.BodyList.length; i++) {
                     for (var j = 0 ; j < 3; j++) {
@@ -200,10 +203,24 @@ class Main extends egret.DisplayObjectContainer {
                     y: - (newY) + stage.stage.stageHeight/2
                 }, 1000);
                 stage.snake.removeChildren();
-                stage.BackGround.removeChild(stage.snake);
+                if (num > 0) {
+                    let textTip = new RemoveTips();
+                    textTip.Create(num);
+                    textTip.textTips.width = stage.stage.stageWidth;
+                    textTip.anchorOffsetX = textTip.width/2;
+                    textTip.anchorOffsetY = textTip.height/2;
+                    textTip.x = stage.stage.stageWidth/2;
+                    textTip.y = stage.stage.stageHeight/2 - 200;
+                    stage.addChild(textTip);
+                    stage.setChildIndex(textTip, -999);
+                    setTimeout(function() {
+                        stage.removeChild(textTip);
+                    }, 100 * num + 2000);
+                }
+                //stage.BackGround.removeChild(stage.snake);
                 setTimeout(function(){
                     stage.snake.ReDraw(newX,newY,newColor);
-                    stage.BackGround.addChild(stage.snake);
+                    //stage.BackGround.addChild(stage.snake);
                 }, 2000);
             }
             else{
@@ -220,12 +237,12 @@ class Main extends egret.DisplayObjectContainer {
                 }
                 let OtherSnakeRebirth = stage.otherSnakes[id];
                 stage.otherSnakes[id].removeChildren();
-                stage.BackGround.removeChild(stage.otherSnakes[id]);
+                //stage.BackGround.removeChild(stage.otherSnakes[id]);
                 // delete stage.otherSnakes[id];
                 setTimeout(function(){
                     // stage.otherSnakes[id] = OtherSnakeRebirth;
                     stage.otherSnakes[id].ReDraw(newX,newY,newColor);
-                    stage.BackGround.addChild(stage.otherSnakes[id]);
+                    //stage.BackGround.addChild(stage.otherSnakes[id]);
                 }, 2000);
             }
                 
@@ -235,34 +252,11 @@ class Main extends egret.DisplayObjectContainer {
             let addfood: Array<any> = JSON.parse(data);
             if (islocal === "true") {
                 stage.DropBodyPoint(bodyid, stage.snake);   
-                // console.log(find[1].$parent);
-                // console.log(stage.snake.BodyList.length);
-                
-                // if(find !== null){
-                //     var last_body = find[1];
-                //     stage.snake.BodyList.splice(find[0], 1);
-                //     var animate: egret.Tween = egret.Tween.get(last_body);
-                //     animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
-                //     var time = egret.setTimeout(function() {
-                //         stage.snake.removeChild(last_body);
-                //     }, stage, 500);
-                // }
             }
             else {
                 let findsnake = stage.otherSnakes[id];
                 if(findsnake !== undefined){
                     stage.DropBodyPoint(bodyid, findsnake);
-                    // console.log(find[1].$parent);
-                    
-                    // if (find !== null) {
-                    //     var last_body = find[1];
-                    //     findsnake.BodyList.splice(find[0], 1);
-                    //     var animate: egret.Tween = egret.Tween.get(last_body);
-                    //     animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
-                    //     var time = egret.setTimeout(function() {
-                    //         findsnake.removeChild(last_body);
-                    //     }, stage, 500);
-                    // }
                 }
             }
             addfood.forEach(food => {
@@ -298,36 +292,18 @@ class Main extends egret.DisplayObjectContainer {
                 findsnake.AfterEat(color_info, food_id);
             }
         });
-        this.socket.on('other_crash',function(data,PasSnake,ActSnake) {           
-            let PasInf = JSON.parse(data);
-            let passnake = JSON.parse(PasSnake);
-            let actsnake = JSON.parse(ActSnake);
-            
-            if(stage.snake.id === PasInf.id) {
-                stage.snake === JSON.parse(PasSnake);
-                stage.otherSnakes[actsnake.id] = JSON.parse(ActSnake);
-                
-            }
-            else {
-                stage.otherSnakes[passnake.id] = JSON.parse(PasSnake);
-                stage.otherSnakes[actsnake.id] = JSON.parse(ActSnake);
-            }     
-        });
-        this.socket.on('EditOther',function(data) {
-            let othersnake = JSON.parse(data);
-            stage.otherSnakes[othersnake.id] = othersnake;
-        });
+
 
         /**
          * 碰撞插入其他蛇处理
          */
         this.socket.on('insert_pas',function(data) {
             // {actid, pasid, pos, insertx, inserty, insertBcolor, insertOcolor}
-            let findsnakePas: Snake = new Snake();
-            let findsnakeAct: Snake = new Snake();
+            let findsnakePas: Snake;
+            let findsnakeAct: Snake;
             let insertData = JSON.parse(data);
-            let head: BodyPoint = new BodyPoint();
-            let point: BodyPoint = new BodyPoint();
+            let head: BodyPoint;
+            let point: BodyPoint;
             let pasid = insertData.pasid;
             findsnakeAct = stage.otherSnakes[insertData.actid];
             head = findsnakeAct.Head;
@@ -623,17 +599,16 @@ class Main extends egret.DisplayObjectContainer {
         infors.head = pos;
         infors.judge = 1;
         let particleItems = [];
+        let num = 0;
         while(infors.judge && infors.size) {
             infors = PassiveSnake.ZumaRemove(infors.head, infors.size);
             if (infors.judge === 1){
                 datum.push(infors);
+                num += infors.last - infors.head;
             }
         }
         removeData.datum = datum;
-
-        
-        
-        this.socket.emit('rebirth',this.snake.id,this.snake.BodyList.length);
+        this.socket.emit('rebirth',this.snake.id,this.snake.BodyList.length,num);
         this.socket.emit('ZumaRemove', JSON.stringify(removeData));
     }
 
@@ -648,7 +623,7 @@ class Main extends egret.DisplayObjectContainer {
         particle.y = fromY;
         this.BackGround.addChild(particle);
         let animate = egret.Tween.get(particle);
-        animate.to({x: toX, y: toY}, 1000, egret.Ease.circOut).to({x: flytoX, y: flytoY}, 1000, egret.Ease.circOut);
+        animate.to({x: toX, y: toY}, 1000, egret.Ease.circOut).to({x: flytoX, y: flytoY}, 1000);
         let stage = this;
         setTimeout(function() {
             stage.BackGround.removeChild(particle);
@@ -831,10 +806,23 @@ class Main extends egret.DisplayObjectContainer {
         for (var i = snake.BodyList.length - 1; i >= 0; i--) {
             if (snake.BodyList[i].id === bodyid) {
                 last_body = snake.BodyList[i];
-                // var animate: egret.Tween = egret.Tween.get(last_body);
-                // animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 400, egret.Ease.circOut);
+                let last_body_color = snake.BodyList[i].Color;
+                let last_body_x = snake.BodyList[i].x;
+                let last_body_y = snake.BodyList[i].y;
                 snake.removeChild(snake.BodyList[i]);
                 snake.BodyList.splice(i, 1);
+                let falsebodypoint = new BodyPoint();
+                falsebodypoint.Create(this.radius, last_body_color, false);
+                falsebodypoint.x = snake.x + last_body_x;
+                falsebodypoint.y = snake.y + last_body_y;
+                this.BackGround.addChild(falsebodypoint);
+                this.BackGround.setChildIndex(falsebodypoint, -999);
+                var animate: egret.Tween = egret.Tween.get(falsebodypoint);
+                animate.to({scaleX: 0.01, scaleY: 0.01,alaph: 0}, 500, egret.Ease.circOut);
+                let stage = this;
+                setTimeout(function() {
+                    stage.BackGround.removeChild(falsebodypoint);
+                }, 500);
                 break;
             }
         }

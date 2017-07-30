@@ -143,36 +143,6 @@ class Snake extends egret.Sprite{
 		animate.to({scaleX: 1.0, scaleY: 1.0},500,egret.Ease.circOut);
 		this.setChildIndex(this.BodyList[this.BodyList.length - 1],0);
 	}
-	// public ReDrawOthers(x,y,colornum) {
-	// 	let headcolor: Color = new Color();
-	// 	this.Head.Color.Origin = headcolor.OriginColor[colornum[0]];
-	// 	this.Head.Color.Bright = 0x000000;
-	// 	this.Head.bodypoint.graphics.clear();
-	// 	this.Head.bodypoint.graphics.lineStyle(4,0x000000);
-	// 	this.Head.bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
-	// 	this.Head.bodypoint.graphics.drawCircle(0,0,this.radius);
-	// 	this.x = x;
-	// 	this.y = y;
-	// 	this.bool = true;
-	// 	this.BodyList[0].bodypoint.graphics.clear();
-	// 	this.BodyList[0].bodypoint.graphics.lineStyle(4,0x000000);
-	// 	this.BodyList[0].bodypoint.graphics.beginFill(this.BodyList[0].Color.Origin);
-	// 	this.BodyList[0].bodypoint.graphics.drawCircle(0,0,this.radius);
-	// 	this.Head = this.BodyList[0];
-	// 	this.addChild(this.Head);
-
-	// 	for(var i = 1; i<this.BodyList.length; i++) {
-	// 		let bodycolor: Color = new Color();
-	// 		this.BodyList[i].Color.Origin = bodycolor.OriginColor[colornum[i]];
-	// 		this.BodyList[i].Color.Bright = bodycolor.BrightColor[colornum[i]];
-	// 		this.BodyList[i].bodypoint.graphics.clear();
-	// 		this.BodyList[i].bodypoint.graphics.lineStyle(4,this.BodyList[i].Color.Bright);
-	// 		this.BodyList[i].bodypoint.graphics.beginFill(this.BodyList[i].Color.Origin);
-	// 		this.BodyList[i].bodypoint.graphics.drawCircle(0,0,this.radius);
-	// 		this.addChild(this.BodyList[i]);
-	// 		this.setChildIndex(this.BodyList[i],0);
-	// 	}
-	// }
 
 	public ReDraw(x,y,colornum) {
 		this.bool = true;
@@ -186,6 +156,11 @@ class Snake extends egret.Sprite{
 		egret.Tween.removeTweens(this.Head);
 		this.Head.x = x - this.x;
 		this.Head.y = y - this.y;
+		this.Head.scaleX = 0.01;
+		this.Head.scaleY = 0.01;
+		let animate: egret.Tween = egret.Tween.get(this.Head);
+		this.addChild(this.Head);
+		animate.to({scaleX: 1.0, scaleY: 1.0},300);
 		
 		this.addChild(this.Head);
 		egret.Tween.removeTweens(this.SnakeName);
@@ -204,7 +179,11 @@ class Snake extends egret.Sprite{
 			egret.Tween.removeTweens(this.BodyList[i]);
 			this.BodyList[i].x = x - this.x;
 			this.BodyList[i].y = y - this.y;
+			this.BodyList[i].scaleX = 0.01;
+			this.BodyList[i].scaleY = 0.01;
+			animate = egret.Tween.get(this.BodyList[i]);
 			this.addChild(this.BodyList[i]);
+			animate.to({scaleX: 1.0, scaleY: 1.0},300);
 			this.setChildIndex(this.BodyList[i],0);
 		}
 	}
