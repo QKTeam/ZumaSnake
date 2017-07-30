@@ -201,7 +201,7 @@ class Main extends egret.DisplayObjectContainer {
                 animate.to({
                     x: - (newX) + stage.stage.stageWidth/2,
                     y: - (newY) + stage.stage.stageHeight/2
-                }, 1000);
+                }, 4000);
                 stage.snake.removeChildren();
                 if (num > 0) {
                     let textTip = new RemoveTips();
@@ -221,7 +221,7 @@ class Main extends egret.DisplayObjectContainer {
                 setTimeout(function(){
                     stage.snake.ReDraw(newX,newY,newColor);
                     //stage.BackGround.addChild(stage.snake);
-                }, 2000);
+                }, 4000);
             }
             else{
                 for (var i = 0; i < stage.otherSnakes[id].BodyList.length; i++) {
@@ -243,7 +243,7 @@ class Main extends egret.DisplayObjectContainer {
                     // stage.otherSnakes[id] = OtherSnakeRebirth;
                     stage.otherSnakes[id].ReDraw(newX,newY,newColor);
                     //stage.BackGround.addChild(stage.otherSnakes[id]);
-                }, 2000);
+                }, 4000);
             }
                 
         });
@@ -613,21 +613,13 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private CreateParticle(fromX: number, fromY: number, toX: number, toY: number, flytoX: number, flytoY: number): egret.Shape {
-        let particle = new egret.Shape();
-        particle.graphics.beginFill(0x40c4ff);
-        particle.graphics.drawCircle(0, 0, 2);
-        particle.graphics.endFill();
-        let glowFilter:egret.GlowFilter = new egret.GlowFilter(0x18ffff, 0.3, 10, 10, 2, egret.BitmapFilterQuality.HIGH, false, false);
-        particle.filters = [glowFilter];
-        particle.x = fromX;
-        particle.y = fromY;
+        let particle =  new Particle();
+        particle.CreateParticle(fromX, fromY, toX, toY, flytoX, flytoY);
         this.BackGround.addChild(particle);
-        let animate = egret.Tween.get(particle);
-        animate.to({x: toX, y: toY}, 1000, egret.Ease.circOut).to({x: flytoX, y: flytoY}, 1000);
         let stage = this;
         setTimeout(function() {
             stage.BackGround.removeChild(particle);
-        }, 2000);
+        }, 4000);
         return particle;
     }
 

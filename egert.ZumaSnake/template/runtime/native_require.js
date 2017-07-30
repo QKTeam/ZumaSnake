@@ -19,6 +19,7 @@ var game_file_list = [
 	"bin-debug/LittleMap.js",
 	"bin-debug/LoadingUI.js",
 	"bin-debug/Main.js",
+	"bin-debug/Particle.js",
 	"bin-debug/RankList.js",
 	"bin-debug/RemoveTips.js",
 	"bin-debug/Snake.js",
