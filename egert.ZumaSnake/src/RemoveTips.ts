@@ -21,6 +21,11 @@ class RemoveTips extends egret.Sprite{
 					let animate = egret.Tween.get(textTips);
                     animate.to({size : 100}, 300, egret.Ease.backInOut);
 				}
+				else if (count === 7){
+					textTips.strokeColor = 0xef5350;
+					let animate = egret.Tween.get(textTips);
+                    animate.to({size : 150}, 300, egret.Ease.backInOut);
+				}
 				textTips.text = 'X ' + count++;
 			}, 100 * i);
 		}

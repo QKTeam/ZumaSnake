@@ -73,8 +73,7 @@ io.on('connection', function(socket){
     });
 
     socket.on('rebirth',function(id,length,num) {
-      console.log(num);
-      var id = id;
+      console.log(id);
       var newX = Math.random() * (5000 - 10 - 1920/2);
       var newY = Math.random() * (3000 - 10 - 1080/2);
       var newColor = [];
@@ -88,7 +87,19 @@ io.on('connection', function(socket){
           AllSnakes[i].body[i].y = newY;
         }
       }
-      io.emit('rebirth',id,newX,newY,newColor,num);
+      var addpoint = [];
+      if (num > 0) {
+        for (var i = 0; i < Math.round(num/2); i++){
+          var color = Math.round(Math.random() * 6);
+          var id2 = uuid.v1();
+          info = {
+            color: color,
+            id: id2
+          }
+          addpoint.push(info);
+        }
+      }
+      io.emit('rebirth',id,newX,newY,JSON.stringify(newColor),num,JSON.stringify(addpoint));
     });
 
     socket.on('move', function(data, id) {

@@ -17,11 +17,11 @@ class Particle extends egret.Sprite{
 		this.toY = toY;
 		this.flytoX = flytoX;
 		this.flytoY = flytoY;
-		this.pointX = Math.random() * Math.max(toX, flytoX) + Math.min(toX, flytoX);
-		this.pointY = Math.random() * Math.max(toY, flytoY) + Math.min(toY, flytoY);
+		this.pointX = Math.random() * Math.max(toX/2, flytoX/2) + Math.min(toX/2, flytoX/2);
+		this.pointY = Math.random() * Math.max(toY/2, flytoY/2) + Math.min(toY/2, flytoY/2);
 		let particle = new egret.Shape();
         particle.graphics.beginFill(0x40c4ff);
-        particle.graphics.drawCircle(0, 0, 2);
+        particle.graphics.drawCircle(0, 0, 5);
         particle.graphics.endFill();
         let glowFilter:egret.GlowFilter = new egret.GlowFilter(0x18ffff, 0.3, 10, 10, 2, egret.BitmapFilterQuality.HIGH, false, false);
         particle.filters = [glowFilter];
@@ -31,7 +31,13 @@ class Particle extends egret.Sprite{
 		this.y = fromY;
         this.addChild(particle);
         let animate = egret.Tween.get(this);
-        animate.to({x: toX, y: toY}, 1000, egret.Ease.circOut).to({factor : 1}, 3000);
+		animate.to({x: toX, y: toY}, 1000);
+		let Sprite = this;
+		setTimeout(function() {
+			egret.Tween.removeTweens(Sprite);
+			let animate2 = egret.Tween.get(Sprite);
+			animate2.to({factor : 1}, 3000);
+		}, 1000);
 	}
 
 	private get factor() {

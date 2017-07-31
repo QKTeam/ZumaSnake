@@ -181,9 +181,11 @@ class Main extends egret.DisplayObjectContainer {
             }
         });
 
-        this.socket.on('rebirth',function(id,newX,newY,newColor,num) {
-            console.log(num);
+        this.socket.on('rebirth',function(id,newX,newY,newColorinfo,num,addpointinfo) {
+            console.log(id);
             
+            let newColor = JSON.parse(newColorinfo);
+            let addpoint = JSON.parse(addpointinfo);
             if(stage.snake.id === id){
                 for (var i = 0; i < stage.snake.BodyList.length; i++) {
                     for (var j = 0 ; j < 3; j++) {
@@ -220,6 +222,7 @@ class Main extends egret.DisplayObjectContainer {
                 //stage.BackGround.removeChild(stage.snake);
                 setTimeout(function(){
                     stage.snake.ReDraw(newX,newY,newColor);
+                    stage.snake.AddPoint(addpoint);
                     //stage.BackGround.addChild(stage.snake);
                 }, 4000);
             }
@@ -242,6 +245,7 @@ class Main extends egret.DisplayObjectContainer {
                 setTimeout(function(){
                     // stage.otherSnakes[id] = OtherSnakeRebirth;
                     stage.otherSnakes[id].ReDraw(newX,newY,newColor);
+                    stage.otherSnakes[id].AddPoint(addpoint);
                     //stage.BackGround.addChild(stage.otherSnakes[id]);
                 }, 4000);
             }
@@ -521,7 +525,13 @@ class Main extends egret.DisplayObjectContainer {
                     HitCheck = new Object();
                     //蛇头
                     if(j === 0) {
-                        continue;
+                        HitCheck = this.snakeHeadCheck(head, PassiveSnake);
+                        if(HitCheck){
+                            this.snake.bool = false;
+                            this.socket.emit('rebirth',this.snake.id,this.snake.BodyList.length,0);
+                            flag = 1;
+                            break;
+                        }
                     }
                     //蛇身
                     else if(j < PassiveSnake.BodyList.length - 1) {
@@ -635,6 +645,17 @@ class Main extends egret.DisplayObjectContainer {
         }
         // return (new egret.Rectangle(a.x + this.snake.x - this.radius, a.y + this.snake.y - this.radius, a.width, a.height))
         //     .intersects(new egret.Rectangle(b.x,b.y,b.width,b.height));
+    }
+
+    private snakeHeadCheck(head, PassiveSnake: Snake) {
+        let rsquare = 4 * (this.radius) * (this.radius);
+        let Mdx = (head.x + this.snake.x - PassiveSnake.Head.x - PassiveSnake.x);
+        let Mdy = (head.y + this.snake.y - PassiveSnake.Head.y - PassiveSnake.y);
+        let Mdist = Mdx*Mdx + Mdy*Mdy;
+        if(Mdist <= rsquare && this.snake.bool) {
+            return true;
+        }
+        else return false;
     }
 
     /**
@@ -801,7 +822,7 @@ class Main extends egret.DisplayObjectContainer {
                 let last_body_color = snake.BodyList[i].Color;
                 let last_body_x = snake.BodyList[i].x;
                 let last_body_y = snake.BodyList[i].y;
-                snake.removeChild(snake.BodyList[i]);
+                snake.removeChild(last_body);
                 snake.BodyList.splice(i, 1);
                 let falsebodypoint = new BodyPoint();
                 falsebodypoint.Create(this.radius, last_body_color, false);
