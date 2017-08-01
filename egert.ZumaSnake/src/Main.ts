@@ -54,9 +54,11 @@ class Main extends egret.DisplayObjectContainer {
     private RankList: RankList;
     private RankListWidth: number;
     private RankListHeight: number;
+    private HitFlag: boolean;
 
     public constructor() {
         super();
+        this.HitFlag = false;
         this.interval = 100 ;
         this.BackGroundWidth = 5000;
         this.BackGroundHeight = 3000;
@@ -490,12 +492,18 @@ class Main extends egret.DisplayObjectContainer {
     }
 
     private onTimer() {
-        if (this.snake.bool === true){
-            for(var i = 0;i < this.food.length;i++) {
-                if(this.hit(this.snake.Head, this.food[i])) {
-                    this.onEatFood(i);
-                    break;
-                }
+        if (this.snake.BodyList.length <= 2) {
+            this.snake.bool = false;
+            this.HitFlag = true;
+        }
+        else if (this.HitFlag === true) {
+            this.snake.bool = true;
+            this.HitFlag = false;
+        }
+        for(var i = 0;i < this.food.length;i++) {
+            if(this.hit(this.snake.Head, this.food[i])) {
+                this.onEatFood(i);
+                break;
             }
         }
         let headX = this.snake.Head.x;

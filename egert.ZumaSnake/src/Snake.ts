@@ -315,6 +315,7 @@ class Snake extends egret.Sprite{
 		let last = pos;
 		let FlagColor;
 		if(pos === this.BodyList.length) pos--;
+		head = pos;
 		FlagColor = this.BodyList[pos].Color.Origin;
 		console.log(head);
 		while (this.BodyList[head].Color.Origin === FlagColor && head) head--;
