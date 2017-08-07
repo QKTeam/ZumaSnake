@@ -145,7 +145,6 @@ class Snake extends egret.Sprite{
 	}
 
 	public ReDraw(x,y,colornum) {
-		this.bool = true;
 		let headcolor: Color = new Color();
 		this.Head.Color.Origin = headcolor.OriginColor[colornum[0]];
 		this.Head.Color.Bright = headcolor.BrightColor[colornum[0]];
@@ -186,6 +185,7 @@ class Snake extends egret.Sprite{
 			animate.to({scaleX: 1.0, scaleY: 1.0},300);
 			this.setChildIndex(this.BodyList[i],0);
 		}
+		this.bool = true;
 	}
 
 	public CreatOther(info: any) {

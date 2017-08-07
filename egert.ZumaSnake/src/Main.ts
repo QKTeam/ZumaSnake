@@ -312,7 +312,10 @@ class Main extends egret.DisplayObjectContainer {
             let point: BodyPoint;
             let pasid = insertData.pasid;
             findsnakeAct = stage.otherSnakes[insertData.actid];
+            findsnakeAct.bool = false;
             head = findsnakeAct.Head;
+            console.log(findsnakeAct.id, findsnakeAct.bool);
+            
 
             if (stage.snake.id === pasid) {
                 findsnakeAct.removeChild(head);
@@ -550,6 +553,8 @@ class Main extends egret.DisplayObjectContainer {
                         //返回插入位置 HitCheck.bool 表示能否插入过别的蛇
                         if(HitCheck.bool) {
                             this.snake.bool = false;
+                            console.log("11111", this.snake.bool);
+                            
                             let insertPos = j + HitCheck.nvalue;
                             this.snakeInsert(insertPos, head, PassiveSnake);
                             flag = 1;
@@ -583,7 +588,7 @@ class Main extends egret.DisplayObjectContainer {
         let x1 = head.x + this.snake.x;
         let y1 = head.y + this.snake.y;
 
-        
+        console.log(this.snake.id, this.snake.bool);
         let insertData;
         insertData = new Object();
         insertData.actid = this.snake.id;
@@ -600,6 +605,8 @@ class Main extends egret.DisplayObjectContainer {
                 break;
             }
         }
+
+        console.log("33333", this.snake.bool);
 
         this.snake.removeChild(this.snake.BodyList[0]);
         this.snake.BodyList.splice(0, 1);
@@ -660,7 +667,7 @@ class Main extends egret.DisplayObjectContainer {
         let Mdx = (head.x + this.snake.x - PassiveSnake.Head.x - PassiveSnake.x);
         let Mdy = (head.y + this.snake.y - PassiveSnake.Head.y - PassiveSnake.y);
         let Mdist = Mdx*Mdx + Mdy*Mdy;
-        if(Mdist <= rsquare && this.snake.bool) {
+        if(Mdist <= rsquare && this.snake.bool && PassiveSnake.bool) {
             return true;
         }
         else return false;
@@ -681,7 +688,7 @@ class Main extends egret.DisplayObjectContainer {
         judge.nvalue = 0;
         
         //碰撞触发
-        if(Mdist <= rsquare && this.snake.bool) {
+        if(Mdist <= rsquare && this.snake.bool && PassiveSnake.bool) {
             let Ldx = (head.x + this.snake.x - L.x - PassiveSnake.x);
             let Ldy = (head.y + this.snake.y - L.y - PassiveSnake.y);
             let Rdx = (head.x + this.snake.x - R.x - PassiveSnake.x);
@@ -718,7 +725,7 @@ class Main extends egret.DisplayObjectContainer {
         judge.nvalue = 0;
         
         //碰撞触发
-        if(Mdist <= rsquare && this.snake.bool) {
+        if(Mdist <= rsquare && this.snake.bool && PassiveSnake.bool) {
             let Ldx = (head.x + this.snake.x - L.x - PassiveSnake.x);
             let Ldy = (head.y + this.snake.y - L.y - PassiveSnake.y);
             let Ldist = Ldx*Ldx + Ldy*Ldy;
