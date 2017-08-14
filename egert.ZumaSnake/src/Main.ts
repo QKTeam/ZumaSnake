@@ -59,8 +59,8 @@ class Main extends egret.DisplayObjectContainer {
     public constructor() {
         super();
         this.HitFlag = false;
-        this.interval = 100 ;
-        this.BackGroundWidth = 5000;
+        this.interval = 80 ;
+        this.BackGroundWidth = 6000;
         this.BackGroundHeight = 3000;
         this.RankListWidth = 300;
         this.RankListHeight = 400;
@@ -89,11 +89,30 @@ class Main extends egret.DisplayObjectContainer {
 
         this.socket = io('http://' + window.location.hostname + ':2222/');
         let bg: egret.Shape = new egret.Shape();
-        bg.graphics.beginFill(0xffccbc);
+        bg.graphics.beginFill(0xE0E0E0);
         bg.graphics.drawRect(0, 0, this.BackGround.width, this.BackGround.height);
         bg.graphics.endFill();
         this.BackGround.addChild(bg);
 
+        /**
+         * 绘制网格
+         */
+        for (var i = 1; i < 200; i++) {
+            let shp: egret.Shape = new egret.Shape();
+            shp.graphics.lineStyle(1, 0x000000, 0.08);
+            shp.graphics.moveTo(0, 15*i);
+            shp.graphics.lineTo(6000, 15*i);
+            shp.graphics.endFill();
+            this.BackGround.addChild(shp);
+        }
+        for (var i = 1; i < 400; i++) {
+            let shp: egret.Shape = new egret.Shape();
+            shp.graphics.lineStyle(1, 0x000000, 0.08);
+            shp.graphics.moveTo(15*i, 0);
+            shp.graphics.lineTo(15*i, 3000);
+            shp.graphics.endFill();
+            this.BackGround.addChild(shp);
+        }
 
         // let snake = this.snake;
         let stage = this;
@@ -756,8 +775,8 @@ class Main extends egret.DisplayObjectContainer {
 
     private endTouchAccelerate() {
         if (this.snake !== undefined){
-            this.timer.delay = 100;
-            this.interval = 100;
+            this.timer.delay = 80;
+            this.interval = 80;
             this.stopAccelerate();
         }
     }
